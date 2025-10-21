@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, Alert, Platform } from 'react-native';
+import { View, Text, ActivityIndicator, Alert, Platform, StyleSheet, StatusBar } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { getAuth } from 'firebase/auth';
 import { db } from '../utils/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 
-// Web: chargement dynamique de react-leaflet/leaflet + icônes colorées
 const useLeaflet = () => {
   const [RL, setRL] = useState(null);
   const [ready, setReady] = useState(false);
@@ -30,7 +29,6 @@ const useLeaflet = () => {
         ]);
         const L = leaflet.default || leaflet;
 
-        // Icônes colorées (rouge: user, vert: mes adresses, bleu: autres publiques)
         const mk = (url) =>
           new L.Icon({
             iconUrl: url,
@@ -67,14 +65,13 @@ export default function MapScreen() {
   const auth = getAuth();
   const currentUser = auth.currentUser;
 
-  const [location, setLocation] = useState(null); // { latitude, longitude }
+  const [location, setLocation] = useState(null);
   const [myAddresses, setMyAddresses] = useState([]);
   const [othersPublic, setOthersPublic] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const { RL, ready: leafletReady, err: leafletErr } = useLeaflet();
 
-  // Géoloc + fetch Firestore
   useEffect(() => {
     (async () => {
       try {
@@ -90,14 +87,12 @@ export default function MapScreen() {
       }
 
       try {
-        // Mes adresses (publiques + privées)
         if (currentUser) {
           const mineSnap = await getDocs(query(collection(db, 'addresses'), where('ownerUid', '==', currentUser.uid)));
           setMyAddresses(mineSnap.docs.map((d) => ({ _id: d.id, ...d.data() })));
         } else {
           setMyAddresses([]);
         }
-        // Adresses publiques (tous), filtrer celles des autres
         const publicSnap = await getDocs(query(collection(db, 'addresses'), where('isPublic', '==', true)));
         const allPublic = publicSnap.docs.map((d) => ({ _id: d.id, ...d.data() }));
         setOthersPublic(
@@ -111,7 +106,15 @@ export default function MapScreen() {
     })();
   }, []);
 
-  // ----------- WEB (react-leaflet) -----------
+  const topOffset = Platform.OS === 'android' ? (StatusBar.currentHeight || 8) : 12;
+
+  const LegendItem = ({ color, label, count }) => (
+    <View style={styles.legendItem}>
+      <View style={[styles.dot, { backgroundColor: color }]} />
+      <Text style={styles.legendText}>{label}{typeof count === 'number' ? ` · ${count}` : ''}</Text>
+    </View>
+  );
+
   if (Platform.OS === 'web') {
     if (loading || (!location && !leafletErr)) {
       return (
@@ -127,6 +130,16 @@ export default function MapScreen() {
 
     return (
       <View style={{ flex: 1 }}>
+        {/* Header / Ping bar */}
+        <View style={[styles.header, { top: topOffset }]}>
+          <Text style={styles.brand}>Mes Bonnes Adresses</Text>
+          <View style={styles.legend}>
+            <LegendItem color="red" label="Vous" count={location ? 1 : 0} />
+            <LegendItem color="green" label="Mes adresses" count={myAddresses.length} />
+            <LegendItem color="blue" label="Publiques" count={othersPublic.length} />
+          </View>
+        </View>
+
         {leafletErr ? (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 }}>
             <Text>Carte web indisponible: {leafletErr}</Text>
@@ -184,7 +197,6 @@ export default function MapScreen() {
     );
   }
 
-  // ----------- iOS / Android (react-native-maps) -----------
   if (loading || !location) {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -196,6 +208,15 @@ export default function MapScreen() {
 
   return (
     <View style={{ flex: 1 }}>
+      {/* Header / Ping bar (mobile) */}
+      <View style={[styles.header, { top: topOffset }]}>
+        <View style={styles.legend}>
+          <LegendItem color="red" label="Vous" count={location ? 1 : 0} />
+          <LegendItem color="green" label="Mes adresses" count={myAddresses.length} />
+          <LegendItem color="blue" label="Publiques" count={othersPublic.length} />
+        </View>
+      </View>
+
       <MapView
         style={{ flex: 1 }}
         initialRegion={{
@@ -204,7 +225,7 @@ export default function MapScreen() {
           latitudeDelta: 0.05,
           longitudeDelta: 0.05,
         }}
-        showsUserLocation={false} // on gère notre propre marker rouge
+        showsUserLocation={false}
       >
         {/* Position utilisateur (rouge) */}
         <Marker
@@ -236,3 +257,50 @@ export default function MapScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  header: {
+    position: 'absolute',
+    left: 12,
+    right: 12,
+    zIndex: 10,
+    backgroundColor: 'rgba(255,255,255,0.92)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 6,
+  },
+  brand: {
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  legend: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12, 
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 10,
+  },
+  dot: {
+    width: 11,
+    height: 11,
+    borderRadius: 6,
+    marginRight: 8,
+    borderWidth: 0.5,
+    borderColor: '#ddd',
+  },
+  legendText: {
+    fontSize: 13,
+    color: '#333',
+  },
+});

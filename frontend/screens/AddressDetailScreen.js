@@ -1,4 +1,3 @@
-// /frontend/screens/AddressDetailScreen.js
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
@@ -35,7 +34,7 @@ import {
   uploadBytes,
   getDownloadURL,
   deleteObject,
-  listAll, // ✅ pour supprimer tout un dossier
+  listAll, 
 } from 'firebase/storage';
 import MapView, { Marker } from 'react-native-maps';
 
@@ -50,12 +49,10 @@ export default function AddressDetailScreen({ route, navigation }) {
   const [uploading, setUploading] = useState(false);
   const [pickedUri, setPickedUri] = useState(null);
 
-  // ⭐️ Rating state
   const [userRating, setUserRating] = useState(0);
   const [avgRating, setAvgRating] = useState(null);
   const [ratingsCount, setRatingsCount] = useState(0);
 
-  // Web: react-leaflet dynamic
   const [RL, setRL] = useState(null);
   const [leafletReady, setLeafletReady] = useState(false);
   const [leafletError, setLeafletError] = useState(null);
@@ -63,7 +60,6 @@ export default function AddressDetailScreen({ route, navigation }) {
   const auth = getAuth();
   const user = auth.currentUser;
 
-  // Charge react-leaflet côté web
   useEffect(() => {
     if (Platform.OS !== 'web') return;
     let mounted = true;
@@ -113,7 +109,6 @@ export default function AddressDetailScreen({ route, navigation }) {
     }
     setLoading(true);
     try {
-      // Adresse
       const addressRef = doc(db, 'addresses', addressId);
       const docSnap = await getDoc(addressRef);
       if (!docSnap.exists()) throw new Error('Adresse introuvable');
@@ -125,20 +120,18 @@ export default function AddressDetailScreen({ route, navigation }) {
         images: data.images || [],
       };
 
-      // Commentaires
       const commentsRef = collection(db, 'addresses', addressId, 'comments');
       const commentsSnap = await getDocs(query(commentsRef, orderBy('createdAt', 'desc')));
       const commentsList = commentsSnap.docs.map((d) => {
         const cData = d.data();
         return {
           _id: d.id,
-          ...cData, // authorUid, authorName, text, createdAt
+          ...cData, 
           author: { displayName: cData.authorName || 'Anonyme' },
         };
       });
       addressObj.comments = commentsList;
 
-      // Notes
       const ratingsRef = collection(db, 'addresses', addressId, 'ratings');
       const ratingsSnap = await getDocs(ratingsRef);
       let sum = 0;
@@ -169,7 +162,6 @@ export default function AddressDetailScreen({ route, navigation }) {
 
   useEffect(() => {
     loadAddress();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [addressId]);
 
   const submitComment = async () => {
@@ -198,7 +190,6 @@ export default function AddressDetailScreen({ route, navigation }) {
     }
   };
 
-  // 🔴 Suppression d’un commentaire par son auteur uniquement
   const deleteOwnComment = async (commentId, authorUid) => {
     try {
       if (!user || user.uid !== authorUid) {
@@ -215,11 +206,6 @@ export default function AddressDetailScreen({ route, navigation }) {
 
   const pickImage = async () => {
     try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission refusée', 'Accès à la galerie requis.');
-        return;
-      }
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
@@ -268,10 +254,8 @@ const deleteAddress = async () => {
     return;
   }
 
-  // --- vraie suppression (Storage + sous-collections + doc) ---
   const doDelete = async () => {
     try {
-      // 1) Supprimer tous les fichiers Storage du dossier addresses/{addressId}
       try {
         const folderRef = ref(storage, `addresses/${addressId}`);
         const list = await listAll(folderRef);
@@ -281,11 +265,9 @@ const deleteAddress = async () => {
           for (const it of sub.items) await deleteObject(it);
         }
       } catch (e) {
-        // pas bloquant si le dossier n'existe pas
         console.warn('Storage clean warning:', e?.message || e);
       }
 
-      // 2) Supprimer sous-collections Firestore (comments, ratings) en batch
       const batch = writeBatch(db);
 
       const commentsRef = collection(db, 'addresses', addressId, 'comments');
@@ -298,10 +280,8 @@ const deleteAddress = async () => {
 
       await batch.commit();
 
-      // 3) Supprimer le document adresse
       await deleteDoc(doc(db, 'addresses', addressId));
 
-      // 4) Retour à l’écran précédent
       Alert.alert('Succès', 'Adresse supprimée.');
       navigation.goBack();
     } catch (e) {
@@ -310,9 +290,7 @@ const deleteAddress = async () => {
     }
   };
 
-  // --- confirmation cross-platform ---
   if (Platform.OS === 'web') {
-    // Alert avec boutons n'exécute pas le callback sur web → on utilise confirm()
     if (window.confirm('Supprimer définitivement cette adresse ?')) {
       await doDelete();
     }
@@ -325,7 +303,6 @@ const deleteAddress = async () => {
 };
 
 
-  // ⭐️ Sauvegarde/maj de la note utilisateur
   const handleRate = async (stars) => {
     try {
       if (!user) {
@@ -412,7 +389,6 @@ const deleteAddress = async () => {
     );
   }
 
-  // Mini-carte web (react-leaflet)
   const WebMiniMap = () => {
     if (!hasLocation) return null;
     if (leafletError) {
@@ -525,14 +501,19 @@ const deleteAddress = async () => {
         ) : (
           <Text style={styles.muted}>Aucune image sélectionnée</Text>
         )}
-        <View style={styles.row}>
-          <Pressable onPress={pickImage} style={styles.btnOutline}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+          <Pressable onPress={pickImage} style={[styles.btnOutline, { flex: 1, borderRadius: 8, alignItems: 'center' }]}>
             <Text style={styles.btnOutlineText}>Choisir dans la galerie</Text>
           </Pressable>
+
           <Pressable
             onPress={uploadImage}
             disabled={!pickedUri || uploading}
-            style={[styles.btn, (!pickedUri || uploading) && styles.btnDisabled]}
+            style={[
+              styles.btn,
+              { flex: 1, borderRadius: 8, alignItems: 'center' },
+              (!pickedUri || uploading) && styles.btnDisabled,
+            ]}
           >
             <Text style={styles.btnText}>{uploading ? 'Envoi…' : 'Envoyer'}</Text>
           </Pressable>
@@ -599,7 +580,6 @@ const styles = StyleSheet.create({
   container: { padding: 16 },
   title: { fontSize: 22, fontWeight: '700', marginBottom: 12 },
 
-  // ⭐️ Rating
   ratingCard: {
     borderWidth: 1,
     borderColor: '#E6E8EC',
@@ -630,7 +610,6 @@ const styles = StyleSheet.create({
   starFilled: { color: '#F5A524' },
   starEmpty: { color: '#D9DEE7' },
 
-  // 🗺️ Map
   mapCard: {
     borderWidth: 1,
     borderColor: '#E6E8EC',
@@ -647,7 +626,6 @@ const styles = StyleSheet.create({
   miniMap: { height: 160, borderRadius: 10 },
   coords: { marginTop: 6, color: '#555', fontSize: 12 },
 
-  // Web (leaflet)
   miniMapWebWrapper: { height: 160, borderRadius: 10, overflow: 'hidden' },
   miniMapWeb: { height: '100%', width: '100%' },
   mapPlaceholder: {
@@ -658,7 +636,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
 
-  // Galerie + formulaires
   imagesRow: { marginBottom: 12 },
   image: { width: 140, height: 100, borderRadius: 8, marginRight: 8, backgroundColor: '#eee' },
   section: { marginBottom: 24 },
@@ -695,7 +672,6 @@ const styles = StyleSheet.create({
   muted: { color: '#777', marginBottom: 8 },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
 
-  // 💬 Commentaires
   commentRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 12 },
   deletePill: {
     backgroundColor: '#d9534f',

@@ -7,11 +7,11 @@ import {
   StyleSheet,
   Platform,
   TouchableOpacity,
-  FlatList,
   KeyboardAvoidingView,
   Image,
   Pressable,
   Switch,
+  ScrollView,
 } from 'react-native';
 import { getAuth } from 'firebase/auth';
 import * as Location from 'expo-location';
@@ -21,7 +21,6 @@ import { db, storage } from '../utils/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
-// ---------- Leaflet (web) loader ----------
 const ensureLeafletLoaded = async () => {
   if (typeof window === 'undefined' || Platform.OS !== 'web') return;
 
@@ -48,20 +47,17 @@ export default function CreateAddressScreen({ navigation }) {
   const [description, setDescription] = useState('');
   const [isPublic, setIsPublic] = useState(false);
 
-  const [photo, setPhoto] = useState(null); // uri locale
-  const [location, setLocation] = useState(null); // { latitude, longitude }
+  const [photo, setPhoto] = useState(null);
+  const [location, setLocation] = useState(null);
 
-  // Recherche (Nominatim)
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
 
-  // Refs Leaflet (web)
   const webMapRef = useRef(null);
   const webLeafletMap = useRef(null);
   const webMarkerRef = useRef(null);
 
-  // ---------- Image ----------
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -74,7 +70,6 @@ export default function CreateAddressScreen({ navigation }) {
   };
   const clearPhoto = () => setPhoto(null);
 
-  // ---------- Localisation ----------
   const useCurrentLocation = async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
@@ -85,7 +80,6 @@ export default function CreateAddressScreen({ navigation }) {
     const coords = { latitude: loc.coords.latitude, longitude: loc.coords.longitude };
     setLocation(coords);
 
-    // Centre la carte + curseur
     if (Platform.OS === 'web' && webLeafletMap.current && window.L) {
       const L = window.L;
       webLeafletMap.current.setView([coords.latitude, coords.longitude], 16);
@@ -98,7 +92,6 @@ export default function CreateAddressScreen({ navigation }) {
     }
   };
 
-  // ---------- Recherche d’adresse (Nominatim) ----------
   const searchPlaces = useCallback(async (text) => {
     setQuery(text);
     if (!text || text.trim().length < 2) {
@@ -131,7 +124,6 @@ export default function CreateAddressScreen({ navigation }) {
     setLocation(coords);
     setSuggestions([]);
 
-    // Place le curseur sur la carte
     if (Platform.OS === 'web' && webLeafletMap.current && window.L) {
       const L = window.L;
       webLeafletMap.current.setView([coords.latitude, coords.longitude], 16);
@@ -144,7 +136,6 @@ export default function CreateAddressScreen({ navigation }) {
     }
   };
 
-  // ---------- Créer l’adresse ----------
   const createAddress = async () => {
     if (!title.trim()) {
       alert('Titre requis');
@@ -162,7 +153,6 @@ export default function CreateAddressScreen({ navigation }) {
         return;
       }
 
-      // Upload photo
       let photoURL = null;
       if (photo) {
         const response = await fetch(photo);
@@ -190,7 +180,6 @@ export default function CreateAddressScreen({ navigation }) {
     }
   };
 
-  // ---------- Carte web (Leaflet) : création et interactions ----------
   useEffect(() => {
     if (Platform.OS !== 'web') return;
     let mounted = true;
@@ -199,7 +188,6 @@ export default function CreateAddressScreen({ navigation }) {
       if (!mounted || !webMapRef.current || !window.L) return;
       const L = window.L;
 
-      // Si la carte est déjà créée, ne pas recréer
       if (!webLeafletMap.current) {
         const start = location ? [location.latitude, location.longitude] : [48.8566, 2.3522];
         const map = L.map(webMapRef.current, { zoomControl: false }).setView(start, 12);
@@ -207,7 +195,6 @@ export default function CreateAddressScreen({ navigation }) {
           attribution: '&copy; OpenStreetMap contributors',
         }).addTo(map);
 
-        // Interaction : clic = placer/mettre à jour le marqueur + setLocation
         map.on('click', (e) => {
           const { lat, lng } = e.latlng;
           setLocation({ latitude: lat, longitude: lng });
@@ -221,7 +208,6 @@ export default function CreateAddressScreen({ navigation }) {
         webLeafletMap.current = map;
       }
 
-      // Synchronise le marqueur si location existe déjà
       if (location) {
         const latlng = L.latLng(location.latitude, location.longitude);
         webLeafletMap.current.setView(latlng, 16);
@@ -237,118 +223,140 @@ export default function CreateAddressScreen({ navigation }) {
     };
   }, [location]);
 
+  const keyboardVerticalOffset = Platform.OS === 'ios' ? 90 : 60;
+
   return (
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      {/* Titre */}
-      <View style={{ marginBottom: 12 }}>
-        <Text style={styles.label}>Titre</Text>
-        <TextInput value={title} onChangeText={setTitle} placeholder="Titre de l'adresse" style={styles.input} />
-      </View>
+    <KeyboardAvoidingView
+      style={styles.flex}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={keyboardVerticalOffset}
+    >
+      <ScrollView
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Titre */}
+        <View style={{ marginBottom: 12 }}>
+          <Text style={styles.label}>Titre</Text>
+          <TextInput value={title} onChangeText={setTitle} placeholder="Titre de l'adresse" style={styles.input} />
+        </View>
 
-      {/* Description */}
-      <View style={{ marginBottom: 12 }}>
-        <Text style={styles.label}>Description</Text>
-        <TextInput
-          value={description}
-          onChangeText={setDescription}
-          placeholder="Description (facultative)"
-          style={[styles.input, { height: 80 }]}
-          multiline
-        />
-      </View>
+        {/* Description */}
+        <View style={{ marginBottom: 12 }}>
+          <Text style={styles.label}>Description</Text>
+          <TextInput
+            value={description}
+            onChangeText={setDescription}
+            placeholder="Description (facultative)"
+            style={[styles.input, { height: 80 }]}
+            multiline
+          />
+        </View>
 
-      {/* Interrupteur Publique / Privée */}
-      <View style={styles.switchRow}>
-        <Text style={styles.switchLabel}>Privée</Text>
-        <Switch
-          value={isPublic}
-          onValueChange={setIsPublic}
-          trackColor={{ false: '#e0e0e0', true: '#a5d8ff' }}
-          thumbColor={isPublic ? '#007AFF' : '#f4f3f4'}
-        />
-        <Text style={styles.switchLabel}>Publique</Text>
-      </View>
+        {/* Interrupteur Publique / Privée */}
+        <View style={styles.switchRow}>
+          <Text style={styles.switchLabel}>Privée</Text>
+          <Switch
+            value={isPublic}
+            onValueChange={setIsPublic}
+            trackColor={{ false: '#e0e0e0', true: '#a5d8ff' }}
+            thumbColor={isPublic ? '#007AFF' : '#f4f3f4'}
+          />
+          <Text style={styles.switchLabel}>Publique</Text>
+        </View>
 
-      {/* Choisir une photo + aperçu + bouton supprimer */}
-      <View style={{ marginBottom: 12 }}>
-        <Button title="Choisir une photo" onPress={pickImage} />
-        {!!photo && (
-          <View style={styles.photoPreviewWrap}>
-            <Image source={{ uri: photo }} style={styles.photoPreview} />
-            <Pressable onPress={clearPhoto} style={styles.photoRemoveBtn} hitSlop={8}>
-              <Text style={styles.photoRemoveText}>×</Text>
-            </Pressable>
-          </View>
-        )}
-      </View>
-
-      {/* Barre de recherche d'adresse */}
-      <View style={{ marginBottom: 8 }}>
-        <Text style={styles.label}>Recherche d'adresse</Text>
-        <TextInput
-          value={query}
-          onChangeText={searchPlaces}
-          placeholder="Rechercher une adresse"
-          style={styles.input}
-        />
-        {searchLoading && <Text style={{ marginTop: 4 }}>Recherche en cours…</Text>}
-        <FlatList
-          data={suggestions}
-          keyExtractor={(it) => it.key}
-          renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => selectSuggestion(item)}>
-              <Text style={styles.suggestion}>{item.label}</Text>
-            </TouchableOpacity>
+        {/* Choisir une photo + aperçu + bouton supprimer */}
+        <View style={{ marginBottom: 12 }}>
+          <Button title="Choisir une photo" onPress={pickImage} />
+          {!!photo && (
+            <View style={styles.photoPreviewWrap}>
+              <Image source={{ uri: photo }} style={styles.photoPreview} />
+              <Pressable onPress={clearPhoto} style={styles.photoRemoveBtn} hitSlop={8}>
+                <Text style={styles.photoRemoveText}>×</Text>
+              </Pressable>
+            </View>
           )}
-        />
-      </View>
+        </View>
 
-      {/* Carte en dessous de la barre de recherche */}
-      <View style={{ marginBottom: 12, height: 220 }}>
-        {Platform.OS === 'web' ? (
-          <View ref={webMapRef} style={styles.webMap} />
-        ) : (
-          <MapView
-            style={{ flex: 1, borderRadius: 10 }}
-            initialRegion={{
-              latitude: location?.latitude ?? 48.8566,
-              longitude: location?.longitude ?? 2.3522,
-              latitudeDelta: 0.05,
-              longitudeDelta: 0.05,
-            }}
-            region={
-              location
-                ? {
-                    latitude: location.latitude,
-                    longitude: location.longitude,
-                    latitudeDelta: 0.01,
-                    longitudeDelta: 0.01,
-                  }
-                : undefined
-            }
-            onPress={(e) => {
-              const { latitude, longitude } = e.nativeEvent.coordinate;
-              setLocation({ latitude, longitude });
-            }}
-          >
-            {location && <Marker coordinate={location} title="Emplacement choisi" />}
-          </MapView>
-        )}
-      </View>
+        {/* Barre de recherche d'adresse */}
+        <View style={{ marginBottom: 8 }}>
+          <Text style={styles.label}>Recherche d'adresse</Text>
+          <TextInput
+            value={query}
+            onChangeText={searchPlaces}
+            placeholder="Rechercher une adresse"
+            style={styles.input}
+          />
+          {searchLoading && <Text style={{ marginTop: 4 }}>Recherche en cours…</Text>}
 
-      {/* Utiliser ma position actuelle */}
-      <View style={{ marginBottom: 16 }}>
-        <Button title="Utiliser ma position actuelle" onPress={useCurrentLocation} />
-      </View>
+          {/* === Remplacé FlatList par un rendu simple pour éviter l'erreur de listes imbriquées === */}
+          {suggestions.length > 0 && (
+            <View style={styles.suggestionsWrap} keyboardShouldPersistTaps="handled">
+              {suggestions.map((item) => (
+                <TouchableOpacity
+                  key={item.key}
+                  onPress={() => selectSuggestion(item)}
+                  style={styles.suggestionRow}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.suggestionText}>{item.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        </View>
 
-      {/* Bouton créer */}
-      <Button title="Créer l'adresse" onPress={createAddress} />
+        {/* Carte en dessous de la barre de recherche */}
+        <View style={{ marginBottom: 12, height: 220 }}>
+          {Platform.OS === 'web' ? (
+            <View ref={webMapRef} style={styles.webMap} />
+          ) : (
+            <MapView
+              style={{ flex: 1, borderRadius: 10 }}
+              initialRegion={{
+                latitude: location?.latitude ?? 48.8566,
+                longitude: location?.longitude ?? 2.3522,
+                latitudeDelta: 0.05,
+                longitudeDelta: 0.05,
+              }}
+              region={
+                location
+                  ? {
+                      latitude: location.latitude,
+                      longitude: location.longitude,
+                      latitudeDelta: 0.01,
+                      longitudeDelta: 0.01,
+                    }
+                  : undefined
+              }
+              onPress={(e) => {
+                const { latitude, longitude } = e.nativeEvent.coordinate;
+                setLocation({ latitude, longitude });
+              }}
+            >
+              {location && <Marker coordinate={location} title="Emplacement choisi" />}
+            </MapView>
+          )}
+        </View>
+
+        {/* Utiliser ma position actuelle */}
+        <View style={{ marginBottom: 16 }}>
+          <Button title="Utiliser ma position actuelle" onPress={useCurrentLocation} />
+        </View>
+
+        {/* Bouton créer */}
+        <Button title="Créer l'adresse" onPress={createAddress} />
+        {/* petit padding bas pour laisser de l'espace au scroll */}
+        <View style={{ height: 20 }} />
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, gap: 4 },
+  flex: { flex: 1 },
+  container: { padding: 16, paddingBottom: 32, backgroundColor: '#fff' },
   label: { fontSize: 16, fontWeight: '600', marginBottom: 4 },
   input: {
     borderColor: '#ccc',
@@ -359,7 +367,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
 
-  // Switch
   switchRow: {
     marginBottom: 12,
     flexDirection: 'row',
@@ -369,7 +376,6 @@ const styles = StyleSheet.create({
   },
   switchLabel: { fontSize: 14, color: '#333' },
 
-  // Photo preview
   photoPreviewWrap: {
     marginTop: 8,
     alignSelf: 'flex-start',
@@ -391,9 +397,21 @@ const styles = StyleSheet.create({
   },
   photoRemoveText: { color: '#fff', fontSize: 14, fontWeight: '700', lineHeight: 16 },
 
-  // Suggestions
-  suggestion: { paddingVertical: 6 },
+  suggestionsWrap: {
+    marginTop: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E6E8EC',
+    backgroundColor: '#fff',
+    overflow: 'hidden',
+  },
+  suggestionRow: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F2F4F7',
+  },
+  suggestionText: { color: '#222' },
 
-  // Web map
   webMap: { height: '100%', borderRadius: 10, backgroundColor: '#eef3ff' },
 });

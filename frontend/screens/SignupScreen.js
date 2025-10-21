@@ -28,7 +28,6 @@ export default function SignupScreen({ navigation }) {
       if (displayName.trim()) {
         await updateProfile(cred.user, { displayName: displayName.trim() });
       }
-      // navigation handled par listener, sinon: navigation.replace('Home')
     } catch (e) {
       setErr("Impossible de créer le compte. Vérifie l'email et le mot de passe.");
     } finally {
@@ -109,7 +108,7 @@ export default function SignupScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#F3F4F6', padding: 16 },
-  header: { alignItems: 'center', marginTop: 12, marginBottom: 16 },
+  header: { alignItems: 'center', marginTop: 26, marginBottom: 16 },
   brand: { fontSize: 18, fontWeight: '800', color: '#0EA5E9' },
 
   card: {

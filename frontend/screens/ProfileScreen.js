@@ -36,13 +36,6 @@ export default function ProfileScreen({ navigation }) {
 
   const pickAvatar = async () => {
     try {
-      if (Platform.OS !== 'web') {
-        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
-          Alert.alert('Permission requise', "L'accès aux photos est nécessaire pour changer l’avatar.");
-          return;
-        }
-      }
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
@@ -50,7 +43,7 @@ export default function ProfileScreen({ navigation }) {
         aspect: [1, 1],
       });
       if (!result.canceled && result.assets && result.assets.length > 0) {
-        setAvatarUri(result.assets[0].uri); // URI locale -> on déclenchera l’upload au save
+        setAvatarUri(result.assets[0].uri); 
       }
     } catch (e) {
       console.warn('pickAvatar error:', e?.message || e);
@@ -65,30 +58,24 @@ export default function ProfileScreen({ navigation }) {
     try {
       let newPhotoURL = auth.currentUser.photoURL || null;
 
-      // 🔁 N’upload que si une image locale a été choisie
       const isLocalFile = typeof avatarUri === 'string' && /^(file|blob|data):/i.test(avatarUri);
       if (isLocalFile) {
         try {
-          // Nom unique pour éviter le cache CDN
           const filename = `avatars/${auth.currentUser.uid}_${Date.now()}.jpg`;
           const storageRef = ref(storage, filename);
 
           const response = await fetch(avatarUri);
           const blob = await response.blob();
 
-          // Upload
           await uploadBytes(storageRef, blob);
 
-          // URL publique
           newPhotoURL = await getDownloadURL(storageRef);
         } catch (err) {
           console.warn('Upload avatar échoué:', err?.message || err);
           Alert.alert('Erreur', "L’upload de l’avatar a échoué.");
-          // On garde l’ancien photoURL si existant
         }
       }
 
-      // ✅ Met à jour le profil Auth (displayName + photoURL)
       const profilePayload = {
         displayName: displayName || null,
         ...(isHttpUrl(newPhotoURL) && isReasonableLength(newPhotoURL)
@@ -97,10 +84,8 @@ export default function ProfileScreen({ navigation }) {
       };
       await updateProfile(auth.currentUser, profilePayload);
 
-      // ✅ Force un reload pour rafraîchir user.photoURL côté client
       await auth.currentUser.reload();
 
-      // ✅ Met à jour l’UI immédiatement
       setAvatarUri(auth.currentUser.photoURL || newPhotoURL || avatarUri);
 
       Alert.alert('Profil', 'Profil mis à jour avec succès.');

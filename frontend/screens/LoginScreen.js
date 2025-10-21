@@ -25,7 +25,6 @@ export default function LoginScreen({ navigation }) {
     try {
       const auth = getAuth();
       await signInWithEmailAndPassword(auth, email.trim(), password);
-      // navigation handled by auth listener si présent ailleurs
     } catch (e) {
       setErr('Identifiants invalides ou compte introuvable.');
     } finally {
@@ -94,7 +93,7 @@ export default function LoginScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#F3F4F6', padding: 16 },
-  header: { alignItems: 'center', marginTop: 12, marginBottom: 16 },
+  header: { alignItems: 'center', marginTop: 26, marginBottom: 16 },
   brand: { fontSize: 18, fontWeight: '800', color: '#0EA5E9' },
 
   card: {
