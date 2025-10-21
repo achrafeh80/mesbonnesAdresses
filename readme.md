@@ -129,8 +129,8 @@ bonneAdresses-main/
 
 ### 2️⃣ Cloner le projet
 ```bash
-git clone https://github.com/<votre-repo>/bonneAdresses-main.git
-cd bonneAdresses-main/frontend
+git clone https://github.com/achrafeh80/mesbonnesAdresses.git
+cd mesbonnesAdresses/frontend
 ```
 
 ### 3️⃣ Installer les dépendances
@@ -140,27 +140,15 @@ npm install
 
 ### 4️⃣ Configurer Firebase
 
-Créer un fichier `/frontend/utils/firebase.js` :
-```javascript
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
+Créer un fichier `.env` dans le dossier`/frontend/` :
 
-const firebaseConfig = {
-  apiKey: 'VOTRE_API_KEY',
-  authDomain: 'VOTRE_AUTH_DOMAIN',
-  projectId: 'VOTRE_PROJECT_ID',
-  storageBucket: 'VOTRE_STORAGE_BUCKET',
-  messagingSenderId: 'VOTRE_SENDER_ID',
-  appId: 'VOTRE_APP_ID',
-};
-
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
-export default app;
+```bash
+EXPO_PUBLIC_FIREBASE_API_KEY=FIREBASE_API_KEY_EXAMPLE
+EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=PROJECT_ID.firebaseapp.com
+EXPO_PUBLIC_FIREBASE_PROJECT_ID=PROJECT_ID_EXAMPLE
+EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=PROJECT_ID_EXAMPLE.appspot.com
+EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=MESSAGE_SENDER_ID_EXAMPLE
+EXPO_PUBLIC_FIREBASE_APP_ID=1:1234567890:web:abcdef123456_EXAMPLE
 ```
 
 ### 5️⃣ Lancer le projet
