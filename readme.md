@@ -23,12 +23,14 @@ Elle permet aux utilisateurs de sauvegarder, gérer et partager leurs adresses f
 ### 📍 Adresses & Cartes
 
 **Création d'une adresse :**
+
 - Nom, description, image et position GPS
 - Sélecteur "Publique / Privée" via un interrupteur (Switch)
 - Localisation automatique ou sélection manuelle sur la carte
 - Carte interactive (MapView mobile / Leaflet web)
 
 **Visualisation des adresses sur la carte :**
+
 - ✅ Adresses de l'utilisateur → marqueurs **verts**
 - 🌍 Adresses publiques des autres → marqueurs **bleus**
 - 📍 Position actuelle → marqueur **rouge**
@@ -71,24 +73,25 @@ Elle permet aux utilisateurs de sauvegarder, gérer et partager leurs adresses f
 
 <div align="center">
 
-| Domaine | Outil / Technologie |
-|:---|:---|
-| **Frontend** | React Native (Expo) |
-| **Base de données** | Firebase Firestore |
-| **Stockage** | Firebase Storage |
-| **Authentification** | Firebase Auth |
-| **Cartographie mobile** | React Native Maps |
-| **Cartographie web** | React Leaflet + OpenStreetMap |
-| **Langage** | JavaScript (ES6) |
-| **Gestion des images** | Expo ImagePicker |
-| **Localisation GPS** | Expo Location |
-| **UI** | StyleSheet React Native, design épuré et responsive |
+| Domaine                 | Outil / Technologie                                 |
+| :---------------------- | :-------------------------------------------------- |
+| **Frontend**            | React Native (Expo)                                 |
+| **Base de données**     | Firebase Firestore                                  |
+| **Stockage**            | Firebase Storage                                    |
+| **Authentification**    | Firebase Auth                                       |
+| **Cartographie mobile** | React Native Maps                                   |
+| **Cartographie web**    | React Leaflet + OpenStreetMap                       |
+| **Langage**             | JavaScript (ES6)                                    |
+| **Gestion des images**  | Expo ImagePicker                                    |
+| **Localisation GPS**    | Expo Location                                       |
+| **UI**                  | StyleSheet React Native, design épuré et responsive |
 
 </div>
 
 ---
 
 ## 📁 Structure du projet
+
 ```
 bonneAdresses-main/
 │
@@ -128,44 +131,35 @@ bonneAdresses-main/
   - Storage
 
 ### 2️⃣ Cloner le projet
+
 ```bash
-git clone https://github.com/<votre-repo>/bonneAdresses-main.git
-cd bonneAdresses-main/frontend
+git clone https://github.com/achrafeh80/mesbonnesAdresses.git
+cd mesbonnesAdresses/frontend
 ```
 
 ### 3️⃣ Installer les dépendances
+
 ```bash
 npm install
 ```
 
 ### 4️⃣ Configurer Firebase
 
-Créer un fichier `/frontend/utils/firebase.js` :
-```javascript
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
+Créer un fichier `.env` dans le dossier`/frontend/` :
 
-const firebaseConfig = {
-  apiKey: 'VOTRE_API_KEY',
-  authDomain: 'VOTRE_AUTH_DOMAIN',
-  projectId: 'VOTRE_PROJECT_ID',
-  storageBucket: 'VOTRE_STORAGE_BUCKET',
-  messagingSenderId: 'VOTRE_SENDER_ID',
-  appId: 'VOTRE_APP_ID',
-};
-
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
-export default app;
+```bash
+EXPO_PUBLIC_FIREBASE_API_KEY=FIREBASE_API_KEY_EXAMPLE
+EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=PROJECT_ID.firebaseapp.com
+EXPO_PUBLIC_FIREBASE_PROJECT_ID=PROJECT_ID_EXAMPLE
+EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=PROJECT_ID_EXAMPLE.appspot.com
+EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=MESSAGE_SENDER_ID_EXAMPLE
+EXPO_PUBLIC_FIREBASE_APP_ID=1:1234567890:web:abcdef123456_EXAMPLE
 ```
 
 ### 5️⃣ Lancer le projet
 
 #### 📱 Mobile (Android / iOS)
+
 ```bash
 npx expo start
 ```
@@ -173,6 +167,7 @@ npx expo start
 > Puis scanner le QR Code avec l'application **Expo Go**.
 
 #### 🌐 Web
+
 ```bash
 npx expo start --web
 ```
@@ -182,15 +177,40 @@ npx expo start --web
 ## 📦 Déploiement
 
 ### Expo Build
+
 ```bash
 npx expo build:android
 npx expo build:ios
 ```
 
 ### Web (hébergement Firebase Hosting)
+
 ```bash
 npm run build
 firebase deploy
+```
+
+## Test de l'application
+
+### Test Unitaire et fonctionnel
+
+Dans le soucis de fournir une solution de qualité nous avons implémenter des tests pour nous assurer de la robutesses du livrable, pour ce faire nous avons utilisé Jest pour les tests unitaire et fonctionnels et detox pour les test e2e
+
+```bash
+npm test
+```
+
+### Tests e2E
+
+```bash
+# iOS
+detox build --configuration ios.sim.debug
+detox test --configuration ios.sim.debug
+
+# Android
+detox build --configuration android.emu.debug
+detox test --configuration android.emu.debug
+
 ```
 
 ---

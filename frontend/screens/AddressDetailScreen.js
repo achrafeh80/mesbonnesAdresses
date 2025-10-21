@@ -35,7 +35,7 @@ import {
   uploadBytes,
   getDownloadURL,
   deleteObject,
-  listAll, // ✅ pour supprimer tout un dossier
+  listAll,
 } from 'firebase/storage';
 import MapView, { Marker } from 'react-native-maps';
 
@@ -50,7 +50,7 @@ export default function AddressDetailScreen({ route, navigation }) {
   const [uploading, setUploading] = useState(false);
   const [pickedUri, setPickedUri] = useState(null);
 
-  // ⭐️ Rating state
+  // Rating state
   const [userRating, setUserRating] = useState(0);
   const [avgRating, setAvgRating] = useState(null);
   const [ratingsCount, setRatingsCount] = useState(0);
@@ -198,7 +198,7 @@ export default function AddressDetailScreen({ route, navigation }) {
     }
   };
 
-  // 🔴 Suppression d’un commentaire par son auteur uniquement
+  // Suppression d’un commentaire par son auteur uniquement
   const deleteOwnComment = async (commentId, authorUid) => {
     try {
       if (!user || user.uid !== authorUid) {
@@ -325,7 +325,7 @@ const deleteAddress = async () => {
 };
 
 
-  // ⭐️ Sauvegarde/maj de la note utilisateur
+  //Sauvegarde/maj de la note utilisateur
   const handleRate = async (stars) => {
     try {
       if (!user) {
@@ -476,7 +476,7 @@ const deleteAddress = async () => {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>{address.title || 'Adresse'}</Text>
 
-      {/* ⭐️ Rating */}
+      {/* Rating */}
       <View style={styles.ratingCard}>
         <View style={styles.ratingTopRow}>
           <Text style={styles.ratingTitle}>Note globale</Text>
@@ -488,7 +488,7 @@ const deleteAddress = async () => {
         {!user && <Text style={styles.ratingHint}>Connecte-toi pour noter cette adresse.</Text>}
       </View>
 
-      {/* 🗺️ Mini-carte */}
+      {/* Mini-carte */}
       {hasLocation && Platform.OS !== 'web' && miniMapRegion && (
         <View style={styles.mapCard}>
           <Text style={styles.sectionTitle}>Localisation</Text>
@@ -599,7 +599,7 @@ const styles = StyleSheet.create({
   container: { padding: 16 },
   title: { fontSize: 22, fontWeight: '700', marginBottom: 12 },
 
-  // ⭐️ Rating
+  // Rating
   ratingCard: {
     borderWidth: 1,
     borderColor: '#E6E8EC',
@@ -630,7 +630,7 @@ const styles = StyleSheet.create({
   starFilled: { color: '#F5A524' },
   starEmpty: { color: '#D9DEE7' },
 
-  // 🗺️ Map
+  // Map
   mapCard: {
     borderWidth: 1,
     borderColor: '#E6E8EC',
@@ -695,7 +695,7 @@ const styles = StyleSheet.create({
   muted: { color: '#777', marginBottom: 8 },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
 
-  // 💬 Commentaires
+  // Commentaires
   commentRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 12 },
   deletePill: {
     backgroundColor: '#d9534f',
