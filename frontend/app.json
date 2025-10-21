@@ -1,0 +1,31 @@
+{
+  "newArchEnabled": false,
+  "expo": {
+    "name": "Mes Bonnes Adresses",
+    "slug": "mes-bonnes-adresses",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "extra": {
+      "firebaseApiKey": "<YOUR_FIREBASE_API_KEY>",
+      "firebaseAuthDomain": "<YOUR_FIREBASE_AUTH_DOMAIN>",
+      "firebaseProjectId": "<YOUR_FIREBASE_PROJECT_ID>",
+      "eas": {
+        "projectId": "725dc595-241c-4732-8735-98a82aa7f113"
+      }
+    },
+    "ios": {
+      "bundleIdentifier": "com.achrafeh.mesbonnesadresses",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.achrafeh.mesbonnesadresses"
+    }
+  }
+}
