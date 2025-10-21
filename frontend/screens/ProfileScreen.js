@@ -5,7 +5,6 @@ import {
   Image,
   TextInput,
   Button,
-  StyleSheet,
   Alert,
   Platform,
   TouchableOpacity,
@@ -14,6 +13,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { getAuth, updateProfile, signOut } from 'firebase/auth';
 import { storage } from '../utils/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import profileStyles from '../styles/profileStyle';
 
 export default function ProfileScreen({ navigation }) {
   const auth = getAuth();
@@ -128,32 +128,32 @@ export default function ProfileScreen({ navigation }) {
   const avatarFallback = 'https://avatars.githubusercontent.com/u/0?v=4';
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Mon profil</Text>
+    <View style={profileStyles.container}>
+      <Text style={profileStyles.title}>Mon profil</Text>
 
       {user ? (
         <>
-          <View style={styles.avatarRow}>
+          <View style={profileStyles.avatarRow}>
             <Image
               source={{ uri: avatarUri || avatarFallback }}
-              style={styles.avatar}
+              style={profileStyles.avatar}
               resizeMode="cover"
             />
-            <TouchableOpacity style={styles.changeBtn} onPress={pickAvatar}>
-              <Text style={styles.changeBtnText}>Changer l’avatar</Text>
+            <TouchableOpacity style={profileStyles.changeBtn} onPress={pickAvatar}>
+              <Text style={profileStyles.changeBtnText}>Changer l’avatar</Text>
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.label}>Nom affiché</Text>
+          <Text style={profileStyles.label}>Nom affiché</Text>
           <TextInput
             value={displayName}
             onChangeText={setDisplayName}
             placeholder="Votre nom"
-            style={styles.input}
+            style={profileStyles.input}
           />
 
-          <Text style={styles.label}>Email</Text>
-          <TextInput value={email} editable={false} style={[styles.input, styles.inputDisabled]} />
+          <Text style={profileStyles.label}>Email</Text>
+          <TextInput value={email} editable={false} style={[profileStyles.input, profileStyles.inputDisabled]} />
 
           <View style={{ height: 12 }} />
           <Button title={saving ? 'Enregistrement…' : 'Enregistrer'} onPress={saveProfile} disabled={saving} />
@@ -162,8 +162,8 @@ export default function ProfileScreen({ navigation }) {
           <Button title="Déconnexion" color="#d9534f" onPress={handleLogout} />
         </>
       ) : (
-        <View style={styles.center}>
-          <Text style={styles.infoText}>
+        <View style={profileStyles.center}>
+          <Text style={profileStyles.infoText}>
             Vous n’êtes pas connecté. Créez un compte pour accéder à votre profil.
           </Text>
           <Button title="S'inscrire" onPress={handleSignupRedirect} />
@@ -173,23 +173,3 @@ export default function ProfileScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, gap: 8 },
-  title: { fontSize: 20, fontWeight: '700', marginBottom: 8 },
-  avatarRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 },
-  avatar: { width: 84, height: 84, borderRadius: 42, backgroundColor: '#eee' },
-  changeBtn: { paddingHorizontal: 12, paddingVertical: 8 },
-  changeBtnText: { color: '#007AFF', fontWeight: '600' },
-  label: { fontSize: 16, fontWeight: '600', marginTop: 8 },
-  input: {
-    borderColor: '#ccc',
-    borderWidth: 1,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    borderRadius: 4,
-    marginBottom: 4,
-  },
-  inputDisabled: { backgroundColor: '#f5f5f5' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  infoText: { fontSize: 16, marginBottom: 10, textAlign: 'center' },
-});

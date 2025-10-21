@@ -1,0 +1,126 @@
+import { StyleSheet } from 'react-native';
+
+const addressDetailStyles = StyleSheet.create({
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 },
+  mt8: { marginTop: 8 },
+  container: { padding: 16 },
+  title: { fontSize: 22, fontWeight: '700', marginBottom: 12 },
+
+  // Rating
+  ratingCard: {
+    borderWidth: 1,
+    borderColor: '#E6E8EC',
+    backgroundColor: '#FAFBFF',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 6,
+    elevation: 1,
+  },
+  ratingTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 },
+  ratingTitle: { fontSize: 16, fontWeight: '700' },
+  ratingBadge: {
+    fontSize: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    backgroundColor: '#EEF4FF',
+    color: '#1D4ED8',
+  },
+  ratingHint: { marginTop: 6, color: '#666' },
+  starsRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  starBtn: { padding: 4 },
+  star: { fontSize: 24, lineHeight: 28 },
+  starFilled: { color: '#F5A524' },
+  starEmpty: { color: '#D9DEE7' },
+
+  // Map
+  mapCard: {
+    borderWidth: 1,
+    borderColor: '#E6E8EC',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 6,
+    elevation: 1,
+  },
+  miniMap: { height: 160, borderRadius: 10 },
+  coords: { marginTop: 6, color: '#555', fontSize: 12 },
+
+  // Web (leaflet)
+  miniMapWebWrapper: { height: 160, borderRadius: 10, overflow: 'hidden' },
+  miniMapWeb: { height: '100%', width: '100%' },
+  mapPlaceholder: {
+    height: 160,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F2F4F7',
+    borderRadius: 10,
+  },
+
+  // Galerie + formulaires
+  imagesRow: { marginBottom: 12 },
+  image: { width: 140, height: 100, borderRadius: 8, marginRight: 8, backgroundColor: '#eee' },
+  section: { marginBottom: 24 },
+  sectionTitle: { fontSize: 18, fontWeight: '600', marginBottom: 8 },
+  input: {
+    borderColor: '#ccc',
+    borderWidth: 1,
+    padding: 8,
+    borderRadius: 4,
+    marginBottom: 8,
+    textAlignVertical: 'top',
+    backgroundColor: '#fff',
+  },
+  btn: {
+    backgroundColor: '#007AFF',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 4,
+    alignItems: 'center',
+  },
+  btnDisabled: { opacity: 0.5 },
+  btnText: { color: '#fff', fontWeight: '600' },
+  btnOutline: {
+    borderColor: '#007AFF',
+    borderWidth: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 4,
+    alignItems: 'center',
+    flex: 1,
+  },
+  btnOutlineText: { color: '#007AFF', fontWeight: '600' },
+  preview: { width: '100%', height: 200, marginBottom: 8, borderRadius: 4 },
+  muted: { color: '#777', marginBottom: 8 },
+  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+
+  // Commentaires
+  commentRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 12 },
+  deletePill: {
+    backgroundColor: '#d9534f',
+    borderRadius: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    marginRight: 8,
+  },
+  deletePillText: { color: '#fff', fontWeight: '700', fontSize: 12 },
+  commentBubble: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 10,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#E6E8EC',
+  },
+  commentAuthor: { fontWeight: '700', marginBottom: 2 },
+  commentText: { marginBottom: 2 },
+});
+export default addressDetailStyles;

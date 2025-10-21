@@ -20,6 +20,7 @@ import MapView, { Marker } from 'react-native-maps';
 import { db, storage } from '../utils/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import createAddressStyles from '../styles/adress/createAddressStyles';
 
 // ---------- Leaflet (web) loader ----------
 const ensureLeafletLoaded = async () => {
@@ -238,45 +239,45 @@ export default function CreateAddressScreen({ navigation }) {
   }, [location]);
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={createAddressStyles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       {/* Titre */}
       <View style={{ marginBottom: 12 }}>
-        <Text style={styles.label}>Titre</Text>
-        <TextInput value={title} onChangeText={setTitle} placeholder="Titre de l'adresse" style={styles.input} />
+        <Text style={createAddressStyles.label}>Titre</Text>
+        <TextInput value={title} onChangeText={setTitle} placeholder="Titre de l'adresse" style={createAddressStyles.input} />
       </View>
 
       {/* Description */}
       <View style={{ marginBottom: 12 }}>
-        <Text style={styles.label}>Description</Text>
+        <Text style={createAddressStyles.label}>Description</Text>
         <TextInput
           value={description}
           onChangeText={setDescription}
           placeholder="Description (facultative)"
-          style={[styles.input, { height: 80 }]}
+          style={[createAddressStyles.input, { height: 80 }]}
           multiline
         />
       </View>
 
       {/* Interrupteur Publique / Privée */}
-      <View style={styles.switchRow}>
-        <Text style={styles.switchLabel}>Privée</Text>
+      <View style={createAddressStyles.switchRow}>
+        <Text style={createAddressStyles.switchLabel}>Privée</Text>
         <Switch
           value={isPublic}
           onValueChange={setIsPublic}
           trackColor={{ false: '#e0e0e0', true: '#a5d8ff' }}
           thumbColor={isPublic ? '#007AFF' : '#f4f3f4'}
         />
-        <Text style={styles.switchLabel}>Publique</Text>
+        <Text style={createAddressStyles.switchLabel}>Publique</Text>
       </View>
 
       {/* Choisir une photo + aperçu + bouton supprimer */}
       <View style={{ marginBottom: 12 }}>
         <Button title="Choisir une photo" onPress={pickImage} />
         {!!photo && (
-          <View style={styles.photoPreviewWrap}>
-            <Image source={{ uri: photo }} style={styles.photoPreview} />
-            <Pressable onPress={clearPhoto} style={styles.photoRemoveBtn} hitSlop={8}>
-              <Text style={styles.photoRemoveText}>×</Text>
+          <View style={createAddressStyles.photoPreviewWrap}>
+            <Image source={{ uri: photo }} style={createAddressStyles.photoPreview} />
+            <Pressable onPress={clearPhoto} style={createAddressStyles.photoRemoveBtn} hitSlop={8}>
+              <Text style={createAddressStyles.photoRemoveText}>×</Text>
             </Pressable>
           </View>
         )}
@@ -284,12 +285,12 @@ export default function CreateAddressScreen({ navigation }) {
 
       {/* Barre de recherche d'adresse */}
       <View style={{ marginBottom: 8 }}>
-        <Text style={styles.label}>Recherche d'adresse</Text>
+        <Text style={createAddressStyles.label}>Recherche d'adresse</Text>
         <TextInput
           value={query}
           onChangeText={searchPlaces}
           placeholder="Rechercher une adresse"
-          style={styles.input}
+          style={createAddressStyles.input}
         />
         {searchLoading && <Text style={{ marginTop: 4 }}>Recherche en cours…</Text>}
         <FlatList
@@ -297,7 +298,7 @@ export default function CreateAddressScreen({ navigation }) {
           keyExtractor={(it) => it.key}
           renderItem={({ item }) => (
             <TouchableOpacity onPress={() => selectSuggestion(item)}>
-              <Text style={styles.suggestion}>{item.label}</Text>
+              <Text style={createAddressStyles.suggestion}>{item.label}</Text>
             </TouchableOpacity>
           )}
         />
@@ -306,7 +307,7 @@ export default function CreateAddressScreen({ navigation }) {
       {/* Carte en dessous de la barre de recherche */}
       <View style={{ marginBottom: 12, height: 220 }}>
         {Platform.OS === 'web' ? (
-          <View ref={webMapRef} style={styles.webMap} />
+          <View ref={webMapRef} style={createAddressStyles.webMap} />
         ) : (
           <MapView
             style={{ flex: 1, borderRadius: 10 }}
@@ -346,54 +347,3 @@ export default function CreateAddressScreen({ navigation }) {
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, gap: 4 },
-  label: { fontSize: 16, fontWeight: '600', marginBottom: 4 },
-  input: {
-    borderColor: '#ccc',
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 8,
-    backgroundColor: '#fff',
-  },
-
-  // Switch
-  switchRow: {
-    marginBottom: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    justifyContent: 'center',
-  },
-  switchLabel: { fontSize: 14, color: '#333' },
-
-  // Photo preview
-  photoPreviewWrap: {
-    marginTop: 8,
-    alignSelf: 'flex-start',
-    position: 'relative',
-    borderRadius: 10,
-    overflow: 'hidden',
-  },
-  photoPreview: { width: 120, height: 120, borderRadius: 10 },
-  photoRemoveBtn: {
-    position: 'absolute',
-    top: 4,
-    right: 4,
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: '#d9534f',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  photoRemoveText: { color: '#fff', fontSize: 14, fontWeight: '700', lineHeight: 16 },
-
-  // Suggestions
-  suggestion: { paddingVertical: 6 },
-
-  // Web map
-  webMap: { height: '100%', borderRadius: 10, backgroundColor: '#eef3ff' },
-});
