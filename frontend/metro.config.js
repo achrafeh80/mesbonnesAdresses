@@ -11,4 +11,16 @@ config.resolver.extraNodeModules = {
 // Add support for Hermes 
 config.transformer.unstable_allowRequireContext = true; 
 
+// Mock react-native-maps sur le web
+config.resolver.resolveRequest = (context, moduleName, platform) => {
+  if (platform === 'web' && moduleName === 'react-native-maps') {
+    return {
+      type: 'empty',
+    };
+  }
+  
+  // Comportement par défaut
+  return context.resolveRequest(context, moduleName, platform);
+};
+
 module.exports = config;
