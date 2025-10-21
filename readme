@@ -1,0 +1,213 @@
+Voici un **README complet, professionnel et détaillé** pour ton projet **Mes Bonnes Adresses**, basé sur ton dernier zip et tout ce que nous avons corrigé et amélioré.
+Il est prêt à être déposé à la racine du projet (`bonneAdresses-main/README.md`).
+
+---
+
+## 🏠 Mes Bonnes Adresses
+
+**Mes Bonnes Adresses** est une application mobile (et web) développée avec **React Native / Expo** et **Firebase**.
+Elle permet aux utilisateurs de sauvegarder, gérer et partager leurs adresses favorites avec photos, avis, et carte interactive.
+
+---
+
+## 🚀 Fonctionnalités principales
+
+### 🔐 Authentification Firebase
+
+* Inscription / Connexion / Déconnexion avec Firebase Auth.
+* Réinitialisation de mot de passe par email.
+* Gestion du profil : nom d’affichage, photo d’avatar.
+* Mise à jour automatique du profil utilisateur connecté.
+
+### 📍 Adresses & Cartes
+
+* Création d’une adresse :
+
+  * Nom, description, image et position GPS.
+  * Sélecteur “Publique / Privée” via un interrupteur (Switch).
+  * Localisation automatique ou sélection manuelle sur la carte.
+  * Carte interactive (MapView mobile / Leaflet web).
+* Visualisation des adresses sur la carte :
+
+  * ✅ Adresses de l’utilisateur → marqueurs **verts**.
+  * 🌍 Adresses publiques des autres → marqueurs **bleus**.
+  * 📍 Position actuelle → marqueur **rouge**.
+* Affichage des coordonnées et de la position sur carte dynamique.
+
+### 🖼️ Galerie & Photos
+
+* Ajout de photos pour chaque adresse via la galerie locale.
+* Upload des images vers **Firebase Storage**.
+* Prévisualisation avant envoi.
+* Possibilité de supprimer l’image sélectionnée avant upload.
+* Toutes les images d’une adresse sont affichées dans le détail.
+
+### ⭐ Notes et commentaires
+
+* Système de **notation par étoiles (1 à 5)**.
+* Moyenne des notes calculée et affichée dynamiquement.
+* Commentaires textuels avec date, auteur et photo facultative.
+* Seul l’auteur d’un commentaire peut le supprimer.
+* Tous les commentaires sont stockés dans Firestore .
+
+### 🧭 Carte (MapScreen)
+
+* Par défaut centrée sur la position actuelle de l’utilisateur.
+* Marqueur rouge = position de l’utilisateur.
+* Marqueurs verts = ses propres adresses.
+* Marqueurs bleus = adresses publiques d’autres utilisateurs.
+* Interface épurée, fluide et responsive.
+
+### 👤 Profil utilisateur
+
+* Affichage des informations Firebase (nom, email, avatar).
+* Possibilité de modifier le nom et l’avatar.
+* Bouton de déconnexion fonctionnel.
+* Bouton d’inscription visible uniquement si aucun utilisateur n’est connecté.
+
+---
+
+## 🧩 Technologies utilisées
+
+| Domaine                 | Outil / Technologie                                 |
+| ----------------------- | --------------------------------------------------- |
+| **Frontend**            | React Native (Expo)                                 |
+| **Base de données**     | Firebase Firestore                                  |
+| **Stockage**            | Firebase Storage                                    |
+| **Authentification**    | Firebase Auth                                       |
+| **Cartographie mobile** | React Native Maps                                   |
+| **Cartographie web**    | React Leaflet + OpenStreetMap                       |
+| **Langage**             | JavaScript (ES6)                                    |
+| **Gestion des images**  | Expo ImagePicker                                    |
+| **Localisation GPS**    | Expo Location                                       |
+| **UI**                  | StyleSheet React Native, design épuré et responsive |
+
+---
+
+## 🗂️ Structure du projet
+
+```
+bonneAdresses-main/
+│
+├── frontend/                   # Application mobile & web
+│   ├── App.js
+│   ├── app.json
+│   ├── package.json
+│   ├── babel.config.js
+│   ├── metro.config.js
+│   ├── assets/                # Images, icônes, splash
+│   ├── navigation/            # Navigation par stack/tab
+│   ├── screens/               # Pages principales
+│   │   ├── LoginScreen.js
+│   │   ├── SignupScreen.js
+│   │   ├── ProfileScreen.js
+│   │   ├── CreateAddressScreen.js
+│   │   ├── AddressDetailScreen.js
+│   │   ├── MyAddressesScreen.js
+│   │   ├── PublicAddressesScreen.js
+│   │   ├── MapScreen.js
+│   ├── utils/
+│       └── firebase.js        # Configuration Firebase
+
+└── README.md                  # Documentation complète
+```
+
+---
+
+## ⚙️ Installation & exécution
+
+### 1️⃣ Prérequis
+
+* **Node.js 20+**
+* **Expo CLI**
+* **Firebase project** configuré avec :
+
+  * Firestore
+  * Auth (Email/Password)
+  * Storage
+
+### 2️⃣ Cloner le projet
+
+```bash
+git clone https://github.com/<votre-repo>/bonneAdresses-main.git
+cd bonneAdresses-main/frontend
+```
+
+### 3️⃣ Installer les dépendances
+
+```bash
+npm install
+```
+
+### 4️⃣ Configurer Firebase
+
+Créer un fichier `/frontend/utils/firebase.js` :
+
+```js
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
+
+const firebaseConfig = {
+  apiKey: 'VOTRE_API_KEY',
+  authDomain: 'VOTRE_AUTH_DOMAIN',
+  projectId: 'VOTRE_PROJECT_ID',
+  storageBucket: 'VOTRE_STORAGE_BUCKET',
+  messagingSenderId: 'VOTRE_SENDER_ID',
+  appId: 'VOTRE_APP_ID',
+};
+
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const storage = getStorage(app);
+export default app;
+```
+
+---
+
+### 5️⃣ Lancer le projet
+
+#### Mobile (Android / iOS)
+
+```bash
+npx expo start
+```
+
+> Puis scanner le QR Code avec l’application **Expo Go**.
+
+#### Web
+
+```bash
+npx expo start --web
+```
+ 
+
+
+
+
+
+
+
+---
+
+## 📦 Déploiement
+
+### Expo Build
+
+```bash
+npx expo build:android
+npx expo build:ios
+```
+
+### Web (hébergement Firebase Hosting)
+
+```bash
+npm run build
+firebase deploy
+```
+
+---
+
+
