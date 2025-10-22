@@ -4,13 +4,13 @@ import {
   Text,
   FlatList,
   TouchableOpacity,
-  StyleSheet,
   Image,
   ActivityIndicator,
 } from 'react-native';
 import { getAuth } from 'firebase/auth';
 import { db } from '../utils/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
+import publicAddressStyles from '../styles/adress/publicAddressStyles';
 
 export default function PublicAddressesScreen({ navigation }) {
   const [addresses, setAddresses] = useState([]);
@@ -44,40 +44,40 @@ export default function PublicAddressesScreen({ navigation }) {
 
     return (
       <TouchableOpacity
-        style={styles.card}
+        style={publicAddressStyles.card}
         activeOpacity={0.85}
         onPress={() => navigation.navigate('AddressDetail', { addressId: item._id })}
       >
         {/* Cover image */}
         {cover ? (
-          <Image source={{ uri: cover }} style={styles.cover} />
+          <Image source={{ uri: cover }} style={publicAddressStyles.cover} />
         ) : (
-          <View style={[styles.cover, styles.coverPlaceholder]}>
-            <Text style={styles.coverPlaceholderText}>Aucune image</Text>
+          <View style={[publicAddressStyles.cover, publicAddressStyles.coverPlaceholder]}>
+            <Text style={publicAddressStyles.coverPlaceholderText}>Aucune image</Text>
           </View>
         )}
 
         {/* Content */}
-        <View style={styles.content}>
-          <Text numberOfLines={1} style={styles.title}>
+        <View style={publicAddressStyles.content}>
+          <Text numberOfLines={1} style={publicAddressStyles.title}>
             {item.title || 'Sans titre'}
           </Text>
 
-          <Text numberOfLines={2} style={styles.sub}>
+          <Text numberOfLines={2} style={publicAddressStyles.sub}>
             par {item.ownerName || 'Anonyme'}
           </Text>
 
-          <View style={styles.metaRow}>
-            <View style={styles.ratingWrap}>
-              <Text style={styles.star}>{rating ? '★' : '☆'}</Text>
-              <Text style={styles.ratingText}>
+          <View style={publicAddressStyles.metaRow}>
+            <View style={publicAddressStyles.ratingWrap}>
+              <Text style={publicAddressStyles.star}>{rating ? '★' : '☆'}</Text>
+              <Text style={publicAddressStyles.ratingText}>
                 {rating ? `${rating.toFixed(1)} / 5` : 'Pas de note'}
                 {ratingsCount ? ` · ${ratingsCount}` : ''}
               </Text>
             </View>
 
-            <View style={[styles.badge, styles.badgePublic]}>
-              <Text style={styles.badgePublicText}>Publique</Text>
+            <View style={[publicAddressStyles.badge, publicAddressStyles.badgePublic]}>
+              <Text style={publicAddressStyles.badgePublicText}>Publique</Text>
             </View>
           </View>
         </View>
@@ -87,7 +87,7 @@ export default function PublicAddressesScreen({ navigation }) {
 
   if (loading) {
     return (
-      <View style={styles.loader}>
+      <View style={publicAddressStyles.loader}>
         <ActivityIndicator />
         <Text style={{ marginTop: 8 }}>Chargement…</Text>
       </View>
@@ -95,7 +95,7 @@ export default function PublicAddressesScreen({ navigation }) {
   }
 
   return (
-    <View style={styles.screen}>
+    <View style={publicAddressStyles.screen}>
       <FlatList
         data={addresses}
         keyExtractor={(item) => item._id}
@@ -103,47 +103,11 @@ export default function PublicAddressesScreen({ navigation }) {
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
         contentContainerStyle={{ padding: 16, paddingTop: 8, paddingBottom: 40 }}
         ListEmptyComponent={
-          <View style={styles.emptyBox}>
-            <Text style={styles.emptyText}>Aucune adresse publique trouvée.</Text>
+          <View style={publicAddressStyles.emptyBox}>
+            <Text style={publicAddressStyles.emptyText}>Aucune adresse publique trouvée.</Text>
           </View>
         }
       />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#F7F9FC' },
-  loader: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 14,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 2,
-  },
-  cover: { width: '100%', height: 160, backgroundColor: '#eaeef7' },
-  coverPlaceholder: { alignItems: 'center', justifyContent: 'center' },
-  coverPlaceholderText: { color: '#6b7280', fontStyle: 'italic' },
-
-  content: { padding: 12 },
-  title: { fontSize: 16, fontWeight: '700' },
-  sub: { marginTop: 2, color: '#6B7280' },
-
-  metaRow: { marginTop: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-
-  badge: { paddingVertical: 4, paddingHorizontal: 8, borderRadius: 999 },
-  badgePublic: { backgroundColor: '#ECFDF5' },
-  badgePublicText: { color: '#059669', fontWeight: '700', fontSize: 12 },
-
-  ratingWrap: { flexDirection: 'row', alignItems: 'center' },
-  star: { fontSize: 16, color: '#F59E0B', marginRight: 4 },
-  ratingText: { color: '#111827' },
-
-  emptyBox: { padding: 32, alignItems: 'center' },
-  emptyText: { color: '#6B7280' },
-});

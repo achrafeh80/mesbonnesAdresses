@@ -8,7 +8,6 @@ import {
   Alert,
   ActivityIndicator,
   ScrollView,
-  StyleSheet,
   Platform,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
@@ -37,6 +36,7 @@ import {
   listAll, 
 } from 'firebase/storage';
 import MapView, { Marker } from 'react-native-maps';
+import addressDetailStyles from '../styles/adress/addressDetailStyles';
 
 export default function AddressDetailScreen({ route, navigation }) {
   const { addressId } = route.params || {};
@@ -342,12 +342,12 @@ const deleteAddress = async () => {
   const Stars = ({ value = 0, onSelect }) => {
     const stars = [1, 2, 3, 4, 5];
     return (
-      <View style={styles.starsRow}>
+      <View style={addressDetailStyles.starsRow}>
         {stars.map((s) => {
           const filled = s <= value;
           return (
-            <Pressable key={s} onPress={() => onSelect?.(s)} style={styles.starBtn} hitSlop={8}>
-              <Text style={[styles.star, filled ? styles.starFilled : styles.starEmpty]}>
+            <Pressable key={s} onPress={() => onSelect?.(s)} style={addressDetailStyles.starBtn} hitSlop={8}>
+              <Text style={[addressDetailStyles.star, filled ? addressDetailStyles.starFilled : addressDetailStyles.starEmpty]}>
                 {filled ? '★' : '☆'}
               </Text>
             </Pressable>
@@ -374,16 +374,16 @@ const deleteAddress = async () => {
 
   if (loading) {
     return (
-      <View style={styles.center}>
+      <View style={addressDetailStyles.center}>
         <ActivityIndicator />
-        <Text style={styles.mt8}>Chargement…</Text>
+        <Text style={addressDetailStyles.mt8}>Chargement…</Text>
       </View>
     );
   }
 
   if (!address) {
     return (
-      <View style={styles.center}>
+      <View style={addressDetailStyles.center}>
         <Text>Aucune adresse à afficher.</Text>
       </View>
     );
@@ -393,14 +393,14 @@ const deleteAddress = async () => {
     if (!hasLocation) return null;
     if (leafletError) {
       return (
-        <View style={styles.mapCard}>
-          <Text style={styles.sectionTitle}>Localisation</Text>
-          <View style={styles.mapPlaceholder}>
+        <View style={addressDetailStyles.mapCard}>
+          <Text style={addressDetailStyles.sectionTitle}>Localisation</Text>
+          <View style={addressDetailStyles.mapPlaceholder}>
             <Text style={{ color: '#666', fontSize: 12 }}>
               Carte web indisponible ({leafletError}).
             </Text>
           </View>
-          <Text style={styles.coords}>
+          <Text style={addressDetailStyles.coords}>
             {address.location.latitude.toFixed(6)}, {address.location.longitude.toFixed(6)}
           </Text>
         </View>
@@ -408,13 +408,13 @@ const deleteAddress = async () => {
     }
     if (!leafletReady || !RL) {
       return (
-        <View style={styles.mapCard}>
-          <Text style={styles.sectionTitle}>Localisation</Text>
-          <View style={styles.mapPlaceholder}>
+        <View style={addressDetailStyles.mapCard}>
+          <Text style={addressDetailStyles.sectionTitle}>Localisation</Text>
+          <View style={addressDetailStyles.mapPlaceholder}>
             <ActivityIndicator />
             <Text style={{ marginTop: 6, color: '#666', fontSize: 12 }}>Chargement de la carte…</Text>
           </View>
-          <Text style={styles.coords}>
+          <Text style={addressDetailStyles.coords}>
             {address.location.latitude.toFixed(6)}, {address.location.longitude.toFixed(6)}
           </Text>
         </View>
@@ -422,13 +422,13 @@ const deleteAddress = async () => {
     }
     const { MapContainer, TileLayer, Marker: RLMarker } = RL;
     return (
-      <View style={styles.mapCard}>
-        <Text style={styles.sectionTitle}>Localisation</Text>
-        <View style={styles.miniMapWebWrapper}>
+      <View style={addressDetailStyles.mapCard}>
+        <Text style={addressDetailStyles.sectionTitle}>Localisation</Text>
+        <View style={addressDetailStyles.miniMapWebWrapper}>
           <MapContainer
             center={[address.location.latitude, address.location.longitude]}
             zoom={16}
-            style={styles.miniMapWeb}
+            style={addressDetailStyles.miniMapWeb}
             scrollWheelZoom={false}
             doubleClickZoom={false}
             dragging={false}
@@ -441,7 +441,7 @@ const deleteAddress = async () => {
             <RLMarker position={[address.location.latitude, address.location.longitude]} />
           </MapContainer>
         </View>
-        <Text style={styles.coords}>
+        <Text style={addressDetailStyles.coords}>
           {address.location.latitude.toFixed(6)}, {address.location.longitude.toFixed(6)}
         </Text>
       </View>
@@ -449,26 +449,26 @@ const deleteAddress = async () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>{address.title || 'Adresse'}</Text>
+    <ScrollView contentContainerStyle={addressDetailStyles.container}>
+      <Text style={addressDetailStyles.title}>{address.title || 'Adresse'}</Text>
 
       {/* ⭐️ Rating */}
-      <View style={styles.ratingCard}>
-        <View style={styles.ratingTopRow}>
-          <Text style={styles.ratingTitle}>Note globale</Text>
-          <Text style={styles.ratingBadge}>
+      <View style={addressDetailStyles.ratingCard}>
+        <View style={addressDetailStyles.ratingTopRow}>
+          <Text style={addressDetailStyles.ratingTitle}>Note globale</Text>
+          <Text style={addressDetailStyles.ratingBadge}>
             {avgRating ? `${avgRating} / 5` : '– / 5'} · {ratingsCount} avis
           </Text>
         </View>
         <Stars value={userRating} onSelect={handleRate} />
-        {!user && <Text style={styles.ratingHint}>Connecte-toi pour noter cette adresse.</Text>}
+        {!user && <Text style={addressDetailStyles.ratingHint}>Connecte-toi pour noter cette adresse.</Text>}
       </View>
 
       {/* 🗺️ Mini-carte */}
       {hasLocation && Platform.OS !== 'web' && miniMapRegion && (
-        <View style={styles.mapCard}>
-          <Text style={styles.sectionTitle}>Localisation</Text>
-          <MapView style={styles.miniMap} pointerEvents="none" initialRegion={miniMapRegion}>
+        <View style={addressDetailStyles.mapCard}>
+          <Text style={addressDetailStyles.sectionTitle}>Localisation</Text>
+          <MapView style={addressDetailStyles.miniMap} pointerEvents="none" initialRegion={miniMapRegion}>
             <Marker
               coordinate={{
                 latitude: address.location.latitude,
@@ -477,7 +477,7 @@ const deleteAddress = async () => {
               title={address.title || 'Adresse'}
             />
           </MapView>
-          <Text style={styles.coords}>
+          <Text style={addressDetailStyles.coords}>
             {address.location.latitude.toFixed(6)}, {address.location.longitude.toFixed(6)}
           </Text>
         </View>
@@ -486,75 +486,75 @@ const deleteAddress = async () => {
 
       {/* Galerie */}
       {!!address.images?.length && (
-        <ScrollView horizontal style={styles.imagesRow} showsHorizontalScrollIndicator={false}>
+        <ScrollView horizontal style={addressDetailStyles.imagesRow} showsHorizontalScrollIndicator={false}>
           {address.images.map((u, idx) => (
-            <Image key={`${u}-${idx}`} source={{ uri: u }} style={styles.image} />
+            <Image key={`${u}-${idx}`} source={{ uri: u }} style={addressDetailStyles.image} />
           ))}
         </ScrollView>
       )}
 
       {/* Ajouter une image */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Ajouter une image</Text>
+      <View style={addressDetailStyles.section}>
+        <Text style={addressDetailStyles.sectionTitle}>Ajouter une image</Text>
         {pickedUri ? (
-          <Image source={{ uri: pickedUri }} style={styles.preview} />
+          <Image source={{ uri: pickedUri }} style={addressDetailStyles.preview} />
         ) : (
-          <Text style={styles.muted}>Aucune image sélectionnée</Text>
+          <Text style={addressDetailStyles.muted}>Aucune image sélectionnée</Text>
         )}
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-          <Pressable onPress={pickImage} style={[styles.btnOutline, { flex: 1, borderRadius: 8, alignItems: 'center' }]}>
-            <Text style={styles.btnOutlineText}>Choisir dans la galerie</Text>
+          <Pressable onPress={pickImage} style={[addressDetailStyles.btnOutline, { flex: 1, borderRadius: 8, alignItems: 'center' }]}>
+            <Text style={addressDetailStyles.btnOutlineText}>Choisir dans la galerie</Text>
           </Pressable>
 
           <Pressable
             onPress={uploadImage}
             disabled={!pickedUri || uploading}
             style={[
-              styles.btn,
+              addressDetailStyles.btn,
               { flex: 1, borderRadius: 8, alignItems: 'center' },
-              (!pickedUri || uploading) && styles.btnDisabled,
+              (!pickedUri || uploading) && addressDetailStyles.btnDisabled,
             ]}
           >
-            <Text style={styles.btnText}>{uploading ? 'Envoi…' : 'Envoyer'}</Text>
+            <Text style={addressDetailStyles.btnText}>{uploading ? 'Envoi…' : 'Envoyer'}</Text>
           </Pressable>
         </View>
       </View>
 
       {/* Nouveau commentaire */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Nouveau commentaire</Text>
+      <View style={addressDetailStyles.section}>
+        <Text style={addressDetailStyles.sectionTitle}>Nouveau commentaire</Text>
         <TextInput
           value={comment}
           onChangeText={setComment}
           placeholder="Écris ton commentaire…"
-          style={styles.input}
+          style={addressDetailStyles.input}
           multiline
         />
-        <Pressable onPress={submitComment} disabled={sending} style={[styles.btn, sending && styles.btnDisabled]}>
-          <Text style={styles.btnText}>{sending ? 'Envoi…' : 'Publier'}</Text>
+        <Pressable onPress={submitComment} disabled={sending} style={[addressDetailStyles.btn, sending && addressDetailStyles.btnDisabled]}>
+          <Text style={addressDetailStyles.btnText}>{sending ? 'Envoi…' : 'Publier'}</Text>
         </Pressable>
       </View>
 
       {/* Commentaires */}
       {!!address.comments?.length && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Commentaires</Text>
+        <View style={addressDetailStyles.section}>
+          <Text style={addressDetailStyles.sectionTitle}>Commentaires</Text>
           {address.comments.map((c) => {
             const canDelete = user && c.authorUid === user.uid;
             return (
-              <View key={c._id} style={styles.commentRow}>
+              <View key={c._id} style={addressDetailStyles.commentRow}>
                 {canDelete && (
                   <Pressable
                     onPress={() => deleteOwnComment(c._id, c.authorUid)}
-                    style={styles.deletePill}
+                    style={addressDetailStyles.deletePill}
                     hitSlop={8}
                   >
-                    <Text style={styles.deletePillText}>Suppr.</Text>
+                    <Text style={addressDetailStyles.deletePillText}>Suppr.</Text>
                   </Pressable>
                 )}
-                <View style={styles.commentBubble}>
-                  <Text style={styles.commentAuthor}>{c.author?.displayName || 'Anonyme'}</Text>
-                  <Text style={styles.commentText}>{c.text}</Text>
+                <View style={addressDetailStyles.commentBubble}>
+                  <Text style={addressDetailStyles.commentAuthor}>{c.author?.displayName || 'Anonyme'}</Text>
+                  <Text style={addressDetailStyles.commentText}>{c.text}</Text>
                 </View>
               </View>
             );
@@ -564,9 +564,9 @@ const deleteAddress = async () => {
 
       {/* Suppression de l’adresse (propriétaire) */}
       {user && address.ownerUid === user.uid && (
-        <View style={styles.section}>
-          <Pressable onPress={deleteAddress} style={[styles.btn, { backgroundColor: '#d9534f' }]}>
-            <Text style={styles.btnText}>Supprimer l’adresse</Text>
+        <View style={addressDetailStyles.section}>
+          <Pressable onPress={deleteAddress} style={[addressDetailStyles.btn, { backgroundColor: '#d9534f' }]}>
+            <Text style={addressDetailStyles.btnText}>Supprimer l’adresse</Text>
           </Pressable>
         </View>
       )}
@@ -574,121 +574,3 @@ const deleteAddress = async () => {
   );
 }
 
-const styles = StyleSheet.create({
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 },
-  mt8: { marginTop: 8 },
-  container: { padding: 16 },
-  title: { fontSize: 22, fontWeight: '700', marginBottom: 12 },
-
-  ratingCard: {
-    borderWidth: 1,
-    borderColor: '#E6E8EC',
-    backgroundColor: '#FAFBFF',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 6,
-    elevation: 1,
-  },
-  ratingTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 },
-  ratingTitle: { fontSize: 16, fontWeight: '700' },
-  ratingBadge: {
-    fontSize: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-    backgroundColor: '#EEF4FF',
-    color: '#1D4ED8',
-  },
-  ratingHint: { marginTop: 6, color: '#666' },
-  starsRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  starBtn: { padding: 4 },
-  star: { fontSize: 24, lineHeight: 28 },
-  starFilled: { color: '#F5A524' },
-  starEmpty: { color: '#D9DEE7' },
-
-  mapCard: {
-    borderWidth: 1,
-    borderColor: '#E6E8EC',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 6,
-    elevation: 1,
-  },
-  miniMap: { height: 160, borderRadius: 10 },
-  coords: { marginTop: 6, color: '#555', fontSize: 12 },
-
-  miniMapWebWrapper: { height: 160, borderRadius: 10, overflow: 'hidden' },
-  miniMapWeb: { height: '100%', width: '100%' },
-  mapPlaceholder: {
-    height: 160,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F2F4F7',
-    borderRadius: 10,
-  },
-
-  imagesRow: { marginBottom: 12 },
-  image: { width: 140, height: 100, borderRadius: 8, marginRight: 8, backgroundColor: '#eee' },
-  section: { marginBottom: 24 },
-  sectionTitle: { fontSize: 18, fontWeight: '600', marginBottom: 8 },
-  input: {
-    borderColor: '#ccc',
-    borderWidth: 1,
-    padding: 8,
-    borderRadius: 4,
-    marginBottom: 8,
-    textAlignVertical: 'top',
-    backgroundColor: '#fff',
-  },
-  btn: {
-    backgroundColor: '#007AFF',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 4,
-    alignItems: 'center',
-  },
-  btnDisabled: { opacity: 0.5 },
-  btnText: { color: '#fff', fontWeight: '600' },
-  btnOutline: {
-    borderColor: '#007AFF',
-    borderWidth: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 4,
-    alignItems: 'center',
-    flex: 1,
-  },
-  btnOutlineText: { color: '#007AFF', fontWeight: '600' },
-  preview: { width: '100%', height: 200, marginBottom: 8, borderRadius: 4 },
-  muted: { color: '#777', marginBottom: 8 },
-  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-
-  commentRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 12 },
-  deletePill: {
-    backgroundColor: '#d9534f',
-    borderRadius: 6,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    marginRight: 8,
-  },
-  deletePillText: { color: '#fff', fontWeight: '700', fontSize: 12 },
-  commentBubble: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-    borderRadius: 10,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#E6E8EC',
-  },
-  commentAuthor: { fontWeight: '700', marginBottom: 2 },
-  commentText: { marginBottom: 2 },
-});

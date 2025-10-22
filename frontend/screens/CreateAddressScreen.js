@@ -4,7 +4,6 @@ import {
   TextInput,
   Button,
   Text,
-  StyleSheet,
   Platform,
   TouchableOpacity,
   KeyboardAvoidingView,
@@ -20,6 +19,7 @@ import MapView, { Marker } from 'react-native-maps';
 import { db, storage } from '../utils/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import createAddressStyles from '../styles/adress/createAddressStyles';
 
 const ensureLeafletLoaded = async () => {
   if (typeof window === 'undefined' || Platform.OS !== 'web') return;
@@ -227,53 +227,53 @@ export default function CreateAddressScreen({ navigation }) {
 
   return (
     <KeyboardAvoidingView
-      style={styles.flex}
+      style={createAddressStyles.flex}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={keyboardVerticalOffset}
     >
       <ScrollView
-        contentContainerStyle={styles.container}
+        contentContainerStyle={createAddressStyles.container}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
         {/* Titre */}
         <View style={{ marginBottom: 12 }}>
-          <Text style={styles.label}>Titre</Text>
-          <TextInput value={title} onChangeText={setTitle} placeholder="Titre de l'adresse" style={styles.input} />
+          <Text style={createAddressStyles.label}>Titre</Text>
+          <TextInput value={title} onChangeText={setTitle} placeholder="Titre de l'adresse" style={createAddressStyles.input} />
         </View>
 
         {/* Description */}
         <View style={{ marginBottom: 12 }}>
-          <Text style={styles.label}>Description</Text>
+          <Text style={createAddressStyles.label}>Description</Text>
           <TextInput
             value={description}
             onChangeText={setDescription}
             placeholder="Description (facultative)"
-            style={[styles.input, { height: 80 }]}
+            style={[createAddressStyles.input, { height: 80 }]}
             multiline
           />
         </View>
 
         {/* Interrupteur Publique / Privée */}
-        <View style={styles.switchRow}>
-          <Text style={styles.switchLabel}>Privée</Text>
+        <View style={createAddressStyles.switchRow}>
+          <Text style={createAddressStyles.switchLabel}>Privée</Text>
           <Switch
             value={isPublic}
             onValueChange={setIsPublic}
             trackColor={{ false: '#e0e0e0', true: '#a5d8ff' }}
             thumbColor={isPublic ? '#007AFF' : '#f4f3f4'}
           />
-          <Text style={styles.switchLabel}>Publique</Text>
+          <Text style={createAddressStyles.switchLabel}>Publique</Text>
         </View>
 
         {/* Choisir une photo + aperçu + bouton supprimer */}
         <View style={{ marginBottom: 12 }}>
           <Button title="Choisir une photo" onPress={pickImage} />
           {!!photo && (
-            <View style={styles.photoPreviewWrap}>
-              <Image source={{ uri: photo }} style={styles.photoPreview} />
-              <Pressable onPress={clearPhoto} style={styles.photoRemoveBtn} hitSlop={8}>
-                <Text style={styles.photoRemoveText}>×</Text>
+            <View style={createAddressStyles.photoPreviewWrap}>
+              <Image source={{ uri: photo }} style={createAddressStyles.photoPreview} />
+              <Pressable onPress={clearPhoto} style={createAddressStyles.photoRemoveBtn} hitSlop={8}>
+                <Text style={createAddressStyles.photoRemoveText}>×</Text>
               </Pressable>
             </View>
           )}
@@ -281,26 +281,26 @@ export default function CreateAddressScreen({ navigation }) {
 
         {/* Barre de recherche d'adresse */}
         <View style={{ marginBottom: 8 }}>
-          <Text style={styles.label}>Recherche d'adresse</Text>
+          <Text style={createAddressStyles.label}>Recherche d'adresse</Text>
           <TextInput
             value={query}
             onChangeText={searchPlaces}
             placeholder="Rechercher une adresse"
-            style={styles.input}
+            style={createAddressStyles.input}
           />
           {searchLoading && <Text style={{ marginTop: 4 }}>Recherche en cours…</Text>}
 
           {/* === Remplacé FlatList par un rendu simple pour éviter l'erreur de listes imbriquées === */}
           {suggestions.length > 0 && (
-            <View style={styles.suggestionsWrap} keyboardShouldPersistTaps="handled">
+            <View style={createAddressStyles.suggestionsWrap} keyboardShouldPersistTaps="handled">
               {suggestions.map((item) => (
                 <TouchableOpacity
                   key={item.key}
                   onPress={() => selectSuggestion(item)}
-                  style={styles.suggestionRow}
+                  style={createAddressStyles.suggestionRow}
                   activeOpacity={0.7}
                 >
-                  <Text style={styles.suggestionText}>{item.label}</Text>
+                  <Text style={createAddressStyles.suggestionText}>{item.label}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -310,7 +310,7 @@ export default function CreateAddressScreen({ navigation }) {
         {/* Carte en dessous de la barre de recherche */}
         <View style={{ marginBottom: 12, height: 220 }}>
           {Platform.OS === 'web' ? (
-            <View ref={webMapRef} style={styles.webMap} />
+            <View ref={webMapRef} style={createAddressStyles.webMap} />
           ) : (
             <MapView
               style={{ flex: 1, borderRadius: 10 }}
@@ -354,64 +354,3 @@ export default function CreateAddressScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  container: { padding: 16, paddingBottom: 32, backgroundColor: '#fff' },
-  label: { fontSize: 16, fontWeight: '600', marginBottom: 4 },
-  input: {
-    borderColor: '#ccc',
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 8,
-    backgroundColor: '#fff',
-  },
-
-  switchRow: {
-    marginBottom: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    justifyContent: 'center',
-  },
-  switchLabel: { fontSize: 14, color: '#333' },
-
-  photoPreviewWrap: {
-    marginTop: 8,
-    alignSelf: 'flex-start',
-    position: 'relative',
-    borderRadius: 10,
-    overflow: 'hidden',
-  },
-  photoPreview: { width: 120, height: 120, borderRadius: 10 },
-  photoRemoveBtn: {
-    position: 'absolute',
-    top: 4,
-    right: 4,
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: '#d9534f',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  photoRemoveText: { color: '#fff', fontSize: 14, fontWeight: '700', lineHeight: 16 },
-
-  suggestionsWrap: {
-    marginTop: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E6E8EC',
-    backgroundColor: '#fff',
-    overflow: 'hidden',
-  },
-  suggestionRow: {
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F2F4F7',
-  },
-  suggestionText: { color: '#222' },
-
-  webMap: { height: '100%', borderRadius: 10, backgroundColor: '#eef3ff' },
-});

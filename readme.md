@@ -182,3 +182,27 @@ firebase deploy
 ```
 
 ---
+## Test de l'application
+
+### Test Unitaire et fonctionnel
+
+Dans le soucis de fournir une solution de qualité nous avons implémenter des tests pour nous assurer de la robutesses du livrable, pour ce faire nous avons utilisé Jest pour les tests unitaire et fonctionnels et detox pour les test e2e
+
+```bash
+npm test
+```
+
+### Tests e2E
+
+```bash
+# iOS
+detox build --configuration ios.sim.debug
+detox test --configuration ios.sim.debug
+
+# Android
+detox build --configuration android.emu.debug
+detox test --configuration android.emu.debug
+
+```
+
+---

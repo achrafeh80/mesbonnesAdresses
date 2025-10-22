@@ -3,13 +3,13 @@ import {
   View,
   TextInput,
   Text,
-  StyleSheet,
   Pressable,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import signUpStyles from '../styles/signUpStyles';
 
 export default function SignupScreen({ navigation }) {
   const [displayName, setDisplayName] = useState('');
@@ -36,141 +36,72 @@ export default function SignupScreen({ navigation }) {
   };
 
   return (
-    <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <View style={styles.header}>
-        <Text style={styles.brand}>Mes Bonnes Adresses</Text>
+    <KeyboardAvoidingView style={signUpStyles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <View style={signUpStyles.header}>
+        <Text style={signUpStyles.brand}>Mes Bonnes Adresses</Text>
       </View>
 
-      <View style={styles.card}>
-        <Text style={styles.title}>Créer un compte</Text>
-        <Text style={styles.subtitle}>Bienvenue parmi nous ✨</Text>
+      <View style={signUpStyles.card}>
+        <Text style={signUpStyles.title}>Créer un compte</Text>
+        <Text style={signUpStyles.subtitle}>Bienvenue parmi nous ✨</Text>
 
-        <View style={styles.field}>
-          <Text style={styles.label}>Nom d’utilisateur</Text>
+        <View style={signUpStyles.field}>
+          <Text style={signUpStyles.label}>Nom d’utilisateur</Text>
           <TextInput
             placeholder="ex: Jean Dupont"
             value={displayName}
             onChangeText={setDisplayName}
-            style={styles.input}
+            style={signUpStyles.input}
             placeholderTextColor="#9CA3AF"
           />
         </View>
 
-        <View style={styles.field}>
-          <Text style={styles.label}>Email</Text>
+        <View style={signUpStyles.field}>
+          <Text style={signUpStyles.label}>Email</Text>
           <TextInput
             placeholder="ex: jean.dupont@email.com"
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
             keyboardType="email-address"
-            style={styles.input}
+            style={signUpStyles.input}
             placeholderTextColor="#9CA3AF"
           />
         </View>
 
-        <View style={styles.field}>
-          <Text style={styles.label}>Mot de passe</Text>
-          <View style={styles.inputRow}>
+        <View style={signUpStyles.field}>
+          <Text style={signUpStyles.label}>Mot de passe</Text>
+          <View style={signUpStyles.inputRow}>
             <TextInput
               placeholder="••••••••"
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPwd}
-              style={[styles.input, { flex: 1, marginBottom: 0 }]}
+              style={[signUpStyles.input, { flex: 1, marginBottom: 0 }]}
               placeholderTextColor="#9CA3AF"
             />
-            <Pressable style={styles.eye} onPress={() => setShowPwd((s) => !s)}>
-              <Text style={styles.eyeText}>{showPwd ? 'Masquer' : 'Voir'}</Text>
+            <Pressable style={signUpStyles.eye} onPress={() => setShowPwd((s) => !s)}>
+              <Text style={signUpStyles.eyeText}>{showPwd ? 'Masquer' : 'Voir'}</Text>
             </Pressable>
           </View>
-          <Text style={styles.hint}>Minimum 6 caractères.</Text>
+          <Text style={signUpStyles.hint}>Minimum 6 caractères.</Text>
         </View>
 
-        {err ? <Text style={styles.error}>{err}</Text> : null}
+        {err ? <Text style={signUpStyles.error}>{err}</Text> : null}
 
-        <Pressable style={[styles.btn, loading && styles.btnDisabled]} onPress={signup} disabled={loading}>
-          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>S’inscrire</Text>}
+        <Pressable style={[signUpStyles.btn, loading && signUpStyles.btnDisabled]} onPress={signup} disabled={loading}>
+          {loading ? <ActivityIndicator color="#fff" /> : <Text style={signUpStyles.btnText}>S’inscrire</Text>}
         </Pressable>
 
-        <View style={styles.divider} />
+        <View style={signUpStyles.divider} />
 
-        <View style={styles.rowCenter}>
-          <Text style={styles.muted}>Déjà un compte ? </Text>
+        <View style={signUpStyles.rowCenter}>
+          <Text style={signUpStyles.muted}>Déjà un compte ? </Text>
           <Pressable onPress={() => navigation.goBack()}>
-            <Text style={styles.linkStrong}>Se connecter</Text>
+            <Text style={signUpStyles.linkStrong}>Se connecter</Text>
           </Pressable>
         </View>
       </View>
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#F3F4F6', padding: 16 },
-  header: { alignItems: 'center', marginTop: 26, marginBottom: 16 },
-  brand: { fontSize: 18, fontWeight: '800', color: '#0EA5E9' },
-
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 2,
-  },
-  title: { fontSize: 22, fontWeight: '800', marginBottom: 4, color: '#111827' },
-  subtitle: { color: '#6B7280', marginBottom: 16 },
-
-  field: { marginBottom: 12 },
-  label: { fontSize: 13, color: '#374151', marginBottom: 6, fontWeight: '600' },
-  input: {
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    backgroundColor: '#F9FAFB',
-    color: '#111827',
-  },
-  inputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 10,
-    backgroundColor: '#F9FAFB',
-    paddingRight: 6,
-  },
-  eye: { paddingHorizontal: 10, paddingVertical: 8 },
-  eyeText: { color: '#0EA5E9', fontWeight: '700' },
-  hint: { color: '#6B7280', marginTop: 6, fontSize: 12 },
-
-  btn: {
-    backgroundColor: '#0EA5E9',
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  btnDisabled: { opacity: 0.6 },
-  btnText: { color: '#fff', fontWeight: '800', fontSize: 16 },
-
-  divider: { height: 1, backgroundColor: '#E5E7EB', marginVertical: 16 },
-  rowCenter: { flexDirection: 'row', justifyContent: 'center' },
-  linkStrong: { color: '#0EA5E9', fontWeight: '800' },
-  muted: { color: '#6B7280' },
-
-  error: {
-    color: '#EF4444',
-    backgroundColor: '#FEE2E2',
-    borderColor: '#FCA5A5',
-    borderWidth: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderRadius: 10,
-    marginBottom: 8,
-  },
-});
