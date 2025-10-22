@@ -135,7 +135,7 @@ cd mesbonnesAdresses/frontend
 
 ### 3️⃣ Installer les dépendances
 ```bash
-npm install
+npm install || npm install --legacy-peer-deps
 ```
 
 ### 4️⃣ Configurer Firebase
@@ -186,7 +186,7 @@ firebase deploy
 
 ### Test Unitaire et fonctionnel
 
-Dans le soucis de fournir une solution de qualité nous avons implémenter des tests pour nous assurer de la robutesses du livrable, pour ce faire nous avons utilisé Jest pour les tests unitaire et fonctionnels et detox pour les test e2e
+Dans le soucis de fournir une solution de qualité nous avons implémenter des tests pour nous assurer de la robutesses du livrable, pour ce faire nous avons utilisé Jest pour les tests unitaires et fonctionnels et detox pour les tests e2e
 
 ```bash
 npm test
