@@ -159,7 +159,7 @@ EXPO_PUBLIC_FIREBASE_APP_ID=1:1234567890:web:abcdef123456_EXAMPLE
 npx expo start --tunnel 
 ```
 
-> Puis scanner le QR Code avec l'application **Expo Go**.
+> Puis scanner le QR Code avec l'application **Expo Go**. si vous recevez une erreur de CommandError: ngrok tunnel took too long to connect. veuillez relancez la commande precedente.
 
 #### 🌐 Web
 ```bash
