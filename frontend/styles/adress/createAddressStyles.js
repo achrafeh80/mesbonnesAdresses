@@ -2,7 +2,8 @@ import { StyleSheet } from 'react-native';
 
 
 const createAddressStyles = StyleSheet.create({
-  container: { flex: 1, padding: 16, gap: 4 },
+  flex: { flex: 1 },
+  container: { padding: 16, paddingBottom: 32, backgroundColor: '#fff' },
   label: { fontSize: 16, fontWeight: '600', marginBottom: 4 },
   input: {
     borderColor: '#ccc',
@@ -13,7 +14,6 @@ const createAddressStyles = StyleSheet.create({
     backgroundColor: '#fff',
   },
 
-  // Switch
   switchRow: {
     marginBottom: 12,
     flexDirection: 'row',
@@ -23,7 +23,6 @@ const createAddressStyles = StyleSheet.create({
   },
   switchLabel: { fontSize: 14, color: '#333' },
 
-  // Photo preview
   photoPreviewWrap: {
     marginTop: 8,
     alignSelf: 'flex-start',
@@ -45,12 +44,23 @@ const createAddressStyles = StyleSheet.create({
   },
   photoRemoveText: { color: '#fff', fontSize: 14, fontWeight: '700', lineHeight: 16 },
 
-  // Suggestions
-  suggestion: { paddingVertical: 6 },
+  suggestionsWrap: {
+    marginTop: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E6E8EC',
+    backgroundColor: '#fff',
+    overflow: 'hidden',
+  },
+  suggestionRow: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F2F4F7',
+  },
+  suggestionText: { color: '#222' },
 
-  // Web map
   webMap: { height: '100%', borderRadius: 10, backgroundColor: '#eef3ff' },
 });
-
 
 export default createAddressStyles;
