@@ -33,33 +33,6 @@ const navigation = {
   addListener: mockAddListener,
 };
 
-const mockAddresses = [
-  {
-    id: "1",
-    data: () => ({
-      title: "Restaurant Paris",
-      description: "Super resto",
-      isPublic: true,
-      averageRating: 4.5,
-      ratingsCount: 10,
-      images: [
-        "https://th.bing.com/th/id/R.3919e5b2f737f142a45921320e666382?rik=mkXBaXp%2bAMCTcw&pid=ImgRaw&r=0",
-      ],
-    }),
-  },
-  {
-    id: "2",
-    data: () => ({
-      title: "Café Lyon",
-      description: "Bon café",
-      isPublic: false,
-      averageRating: 3.8,
-      ratingsCount: 5,
-      images: [],
-    }),
-  },
-];
-
 describe("MyAddressesScreen", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -79,6 +52,33 @@ describe("MyAddressesScreen", () => {
   it("affiche la liste des adresses après le chargement", async () => {
     const mockAuth = { currentUser: { uid: "user123" } };
     getAuth.mockReturnValue(mockAuth);
+
+    const mockAddresses = [
+      {
+        id: "1",
+        data: () => ({
+          title: "Restaurant Paris",
+          description: "Super resto",
+          isPublic: true,
+          averageRating: 4.5,
+          ratingsCount: 10,
+          images: [
+            "https://th.bing.com/th/id/R.3919e5b2f737f142a45921320e666382?rik=mkXBaXp%2bAMCTcw&pid=ImgRaw&r=0",
+          ],
+        }),
+      },
+      {
+        id: "2",
+        data: () => ({
+          title: "Café Lyon",
+          description: "Bon café",
+          isPublic: false,
+          averageRating: 3.8,
+          ratingsCount: 5,
+          images: [],
+        }),
+      },
+    ];
 
     getDocs.mockResolvedValue({ docs: mockAddresses });
 
@@ -133,17 +133,17 @@ describe("MyAddressesScreen", () => {
     getDocs.mockResolvedValue({
       docs: [
         {
-        id: "address123",
-        data: () => ({
-          title: "Restaurant Test",
-          description: "Description test",
-          isPublic: true,
-          images: [
-            "https://tse4.mm.bing.net/th/id/OIP.O7qcUzX41GsAcFhJ9CUkXQHaDs?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3",
-          ],
-        }),
-      },
-    ]
+          id: "address123",
+          data: () => ({
+            title: "Restaurant Test",
+            description: "Description test",
+            isPublic: true,
+            images: [
+              "https://tse4.mm.bing.net/th/id/OIP.O7qcUzX41GsAcFhJ9CUkXQHaDs?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3",
+            ],
+          }),
+        },
+      ],
     });
 
     const { getByText } = render(<MyAddressesScreen navigation={navigation} />);

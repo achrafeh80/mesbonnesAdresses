@@ -32,55 +32,6 @@ const navigation = {
   addListener: mockAddListener,
 };
 
-const mockAddresses = [
-  {
-    id: "1",
-    data: () => ({
-      title: "Mon Restaurant",
-      description: "Super resto",
-      isPublic: true,
-      averageRating: 4.5,
-      ratingsCount: 10,
-      images: [],
-    }),
-  },
-  {
-    id: "2",
-    data: () => ({
-      title: "Mon Café",
-      description: "Bon café",
-      isPublic: false,
-      images: [],
-    }),
-  },
-];
-const mockAddressesWithPicture = [
-  {
-    id: "1",
-    data: () => ({
-      title: "Restaurant Paris",
-      description: "Super resto",
-      isPublic: true,
-      averageRating: 4.5,
-      ratingsCount: 10,
-      images: [
-        "https://miro.medium.com/v2/resize:fit:796/1*VxBKV4bcUJ4M7WCuCNmHWw.png",
-      ],
-    }),
-  },
-  {
-    id: "2",
-    data: () => ({
-      title: "Café Lyon",
-      description: "Bon café",
-      isPublic: false,
-      averageRating: 3.8,
-      ratingsCount: 5,
-      images: [],
-    }),
-  },
-];
-
 describe("MyAddressesScreen", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -89,6 +40,28 @@ describe("MyAddressesScreen", () => {
   it('affiche le badge "Moi" pour toutes les adresses de l\'utilisateur', async () => {
     const mockAuth = { currentUser: { uid: "user123" } };
     getAuth.mockReturnValue(mockAuth);
+    const mockAddresses = [
+      {
+        id: "1",
+        data: () => ({
+          title: "Mon Restaurant",
+          description: "Super resto",
+          isPublic: true,
+          averageRating: 4.5,
+          ratingsCount: 10,
+          images: [],
+        }),
+      },
+      {
+        id: "2",
+        data: () => ({
+          title: "Mon Café",
+          description: "Bon café",
+          isPublic: false,
+          images: [],
+        }),
+      },
+    ];
 
     getDocs.mockResolvedValue({ docs: mockAddresses });
 
@@ -107,6 +80,33 @@ describe("MyAddressesScreen", () => {
   it("affiche la liste des adresses après le chargement", async () => {
     const mockAuth = { currentUser: { uid: "user123" } };
     getAuth.mockReturnValue(mockAuth);
+
+    const mockAddressesWithPicture = [
+      {
+        id: "1",
+        data: () => ({
+          title: "Restaurant Paris",
+          description: "Super resto",
+          isPublic: true,
+          averageRating: 4.5,
+          ratingsCount: 10,
+          images: [
+            "https://miro.medium.com/v2/resize:fit:796/1*VxBKV4bcUJ4M7WCuCNmHWw.png",
+          ],
+        }),
+      },
+      {
+        id: "2",
+        data: () => ({
+          title: "Café Lyon",
+          description: "Bon café",
+          isPublic: false,
+          averageRating: 3.8,
+          ratingsCount: 5,
+          images: [],
+        }),
+      },
+    ];
 
     getDocs.mockResolvedValue({ docs: mockAddressesWithPicture });
 
