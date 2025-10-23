@@ -135,7 +135,8 @@ cd mesbonnesAdresses/frontend
 
 ### 3️⃣ Installer les dépendances
 ```bash
-npm install || npm install --legacy-peer-deps
+npm install
+npm update --legacy-peer-deps
 ```
 
 ### 4️⃣ Configurer Firebase
@@ -155,7 +156,7 @@ EXPO_PUBLIC_FIREBASE_APP_ID=1:1234567890:web:abcdef123456_EXAMPLE
 
 #### 📱 Mobile (Android / iOS)
 ```bash
-npx expo start
+npx expo start --tunnel 
 ```
 
 > Puis scanner le QR Code avec l'application **Expo Go**.
