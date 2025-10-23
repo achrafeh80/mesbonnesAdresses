@@ -9,6 +9,7 @@
 **Mes Bonnes Adresses** est une application mobile (et web) développée avec **React Native / Expo** et **Firebase**.  
 Elle permet aux utilisateurs de sauvegarder, gérer et partager leurs adresses favorites avec photos, avis, et carte interactive.
 
+> L'ensemble des instructions mis dans ce fichier est fonction du système d'exploitation windows
 ---
 
 ## ✨ Fonctionnalités principales
@@ -92,15 +93,20 @@ Elle permet aux utilisateurs de sauvegarder, gérer et partager leurs adresses f
 ```
 bonneAdresses-main/
 │
-├── frontend/                   # Application mobile & web
-│   ├── App.js
+├── frontend/
+│   ├──_test_
+│   │   ├── CreateTest.tes.js  
+│   │   ├── LoginTest.tes.js
+│   │   ├── MyAdressTest.tes.js
+│   │   └── PublicAdress.tes.js                
+│   ├── App.js                      
 │   ├── app.json
 │   ├── package.json
 │   ├── babel.config.js
 │   ├── metro.config.js
-│   ├── assets/                # Images, icônes, splash
-│   ├── navigation/            # Navigation par stack/tab
-│   ├── screens/               # Pages principales
+│   ├── assets/                
+│   ├── navigation/            
+│   ├── screens/            
 │   │   ├── LoginScreen.js
 │   │   ├── SignupScreen.js
 │   │   ├── ProfileScreen.js
@@ -122,7 +128,8 @@ bonneAdresses-main/
 
 - **Node.js 20+**
 - **Expo CLI**
-- **Firebase project** configuré avec :
+- **un appareil mobile avec Android ou IOS**
+- **Crucial: ** **Firebase project** configuré avec :
   - Firestore
   - Auth (Email/Password)
   - Storage
@@ -157,6 +164,8 @@ EXPO_PUBLIC_FIREBASE_APP_ID=1:1234567890:web:abcdef123456_EXAMPLE
 #### 📱 Mobile (Android / iOS)
 ```bash
 npx expo start --tunnel 
+or
+npx expo start -c --tunnel
 ```
 
 > Puis scanner le QR Code avec l'application **Expo Go**. si vous recevez une erreur de CommandError: ngrok tunnel took too long to connect. veuillez relancez la commande precedente.
@@ -187,7 +196,7 @@ firebase deploy
 
 ### Test Unitaire et fonctionnel
 
-Dans le soucis de fournir une solution de qualité nous avons implémenter des tests pour nous assurer de la robutesses du livrable, pour ce faire nous avons utilisé Jest pour les tests unitaires et fonctionnels et detox pour les tests e2e
+Pour lancer les tests rendez vous dans le dossier frontend et lancez:
 
 ```bash
 npm test

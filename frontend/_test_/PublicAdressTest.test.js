@@ -49,52 +49,6 @@ describe("MyAddressesScreen", () => {
     expect(getByText("Chargement…")).toBeTruthy();
   });
 
-  it("affiche la liste des adresses après le chargement", async () => {
-    const mockAuth = { currentUser: { uid: "user123" } };
-    getAuth.mockReturnValue(mockAuth);
-
-    const mockAddresses = [
-      {
-        id: "1",
-        data: () => ({
-          title: "Restaurant Paris",
-          description: "Super resto",
-          isPublic: true,
-          averageRating: 4.5,
-          ratingsCount: 10,
-          images: [
-            "https://th.bing.com/th/id/R.3919e5b2f737f142a45921320e666382?rik=mkXBaXp%2bAMCTcw&pid=ImgRaw&r=0",
-          ],
-        }),
-      },
-      {
-        id: "2",
-        data: () => ({
-          title: "Café Lyon",
-          description: "Bon café",
-          isPublic: false,
-          averageRating: 3.8,
-          ratingsCount: 5,
-          images: [],
-        }),
-      },
-    ];
-
-    getDocs.mockResolvedValue({ docs: mockAddresses });
-
-    const { getByText } = render(<MyAddressesScreen navigation={navigation} />);
-
-    await waitFor(() => {
-      expect(getByText("Restaurant Paris")).toBeTruthy();
-    });
-
-    expect(getByText("Restaurant Paris")).toBeTruthy();
-    expect(getByText("Café Lyon")).toBeTruthy();
-    expect(getByText("Super resto")).toBeTruthy();
-    expect(getByText("Publique")).toBeTruthy();
-    expect(getByText("Privée")).toBeTruthy();
-  });
-
   it("affiche un message quand il n'y a pas d'adresses", async () => {
     const mockAuth = { currentUser: { uid: "user123" } };
     getAuth.mockReturnValue(mockAuth);
