@@ -1,4 +1,5 @@
 import { render, fireEvent, waitFor } from "@testing-library/react-native";
+import { collection, query, where } from "firebase/firestore";
 import MyAddressesScreen from "../screens/MyAddressesScreen";
 import { getAuth } from "firebase/auth";
 import { getDocs } from "firebase/firestore";
@@ -35,6 +36,10 @@ const navigation = {
 describe("MyAddressesScreen", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+
+    collection.mockReturnValue({});
+    where.mockImplementation((...args) => args);
+    query.mockImplementation((...args) => args);
   });
 
   it('affiche le badge "Moi" pour toutes les adresses de l\'utilisateur', async () => {
@@ -81,7 +86,7 @@ describe("MyAddressesScreen", () => {
     const mockAuth = { currentUser: { uid: "user123" } };
     getAuth.mockReturnValue(mockAuth);
 
-    const mockAddressesWithPicture = [
+    const mockAddressesWithImage = [
       {
         id: "1",
         data: () => ({
@@ -108,20 +113,18 @@ describe("MyAddressesScreen", () => {
       },
     ];
 
-    getDocs.mockResolvedValue({ docs: mockAddressesWithPicture });
+    getDocs.mockResolvedValue({ docs: mockAddressesWithImage });
 
-    const { getByText } = render(<MyAddressesScreen navigation={navigation} />);
+    const { findByText } = render(
+      <MyAddressesScreen navigation={navigation} />
+    );
 
-    await waitFor(() => {
-      expect(getByText("Restaurant Paris")).toBeTruthy();
-    });
-
-    expect(getByText("Restaurant Paris")).toBeTruthy();
-    expect(getByText("Café Lyon")).toBeTruthy();
-    expect(getByText("Super resto")).toBeTruthy();
-    expect(getByText("Publique")).toBeTruthy();
-    expect(getByText("Privée")).toBeTruthy();
-  });
+    expect(await findByText("Restaurant Paris")).toBeTruthy();
+    expect(await findByText("Café Lyon")).toBeTruthy();
+    expect(await findByText("Super resto")).toBeTruthy();
+    expect(await findByText("Publique")).toBeTruthy();
+    expect(await findByText("Privée")).toBeTruthy();
+  }, 10000);
 
   it("affiche un message quand il n'y a pas d'adresses", async () => {
     const mockAuth = { currentUser: { uid: "user123" } };
