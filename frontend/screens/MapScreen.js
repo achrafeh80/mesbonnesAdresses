@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, ActivityIndicator, Alert, Platform, StyleSheet, StatusBar } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { getAuth } from 'firebase/auth';
 import { db } from '../utils/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 const useLeaflet = () => {
   const [RL, setRL] = useState(null);
@@ -72,6 +73,13 @@ export default function MapScreen() {
 
   const { RL, ready: leafletReady, err: leafletErr } = useLeaflet();
 
+  const navigation = useNavigation();
+  const route = useRoute();
+
+  // refs for map controls
+  const mapRef = useRef(null); // for react-native-maps
+  const [mapInstance, setMapInstance] = useState(null); // for react-leaflet
+
   useEffect(() => {
     (async () => {
       try {
@@ -104,7 +112,59 @@ export default function MapScreen() {
         setLoading(false);
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Gestion du param "createdAddress" lorsqu'on revient de CreateAddressScreen
+  useEffect(() => {
+    const created = route.params?.createdAddress;
+    if (!created) return;
+
+    // Si c'est une de mes adresses, l'ajouter dans myAddresses
+    if (currentUser && created.ownerUid === currentUser.uid) {
+      setMyAddresses((prev) => {
+        // éviter doublons si déjà présent
+        if (prev.some((p) => p._id === created._id)) return prev;
+        return [created, ...prev];
+      });
+    } else if (created.isPublic) {
+      // si c'est publique et pas à moi, l'ajouter aux publics
+      setOthersPublic((prev) => {
+        if (prev.some((p) => p._id === created._id)) return prev;
+        return [created, ...prev];
+      });
+    }
+
+    // recentrer la carte sur le marqueur nouvellement ajouté
+    const lat = created.location?.latitude;
+    const lon = created.location?.longitude;
+    if (lat != null && lon != null) {
+      if (Platform.OS === 'web' && mapInstance && typeof mapInstance.setView === 'function') {
+        try {
+          mapInstance.setView([lat, lon], 16);
+        } catch (e) {
+          console.warn('Erreur setView leaflet:', e);
+        }
+      } else if (Platform.OS !== 'web' && mapRef.current && typeof mapRef.current.animateToRegion === 'function') {
+        try {
+          mapRef.current.animateToRegion(
+            { latitude: lat, longitude: lon, latitudeDelta: 0.01, longitudeDelta: 0.01 },
+            500
+          );
+        } catch (e) {
+          console.warn('Erreur animateToRegion:', e);
+        }
+      }
+    }
+
+    // nettoyer le param pour ne pas le ré-appliquer
+    try {
+      navigation.setParams({ createdAddress: undefined });
+    } catch (e) {
+      // pas bloquant si navigation.setParams indisponible
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [route.params?.createdAddress, mapInstance, currentUser]);
 
   const topOffset = Platform.OS === 'android' ? (StatusBar.currentHeight || 8) : 12;
 
@@ -130,7 +190,6 @@ export default function MapScreen() {
 
     return (
       <View style={{ flex: 1 }}>
-        {/* Header / Ping bar */}
         <View style={[styles.header, { top: topOffset }]}>
           <Text style={styles.brand}>Mes Bonnes Adresses</Text>
           <View style={styles.legend}>
@@ -150,13 +209,13 @@ export default function MapScreen() {
             zoom={14}
             style={{ flex: 1, height: '100%' }}
             scrollWheelZoom
+            whenCreated={(m) => setMapInstance(m)}
           >
             <TileLayer
               attribution='&copy; OpenStreetMap contributors'
               url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
             />
 
-            {/* Marqueur position utilisateur (rouge) */}
             {location && (
               <RLMarker
                 position={[location.latitude, location.longitude]}
@@ -166,7 +225,6 @@ export default function MapScreen() {
               </RLMarker>
             )}
 
-            {/* Mes adresses (vert) */}
             {myAddresses.map((a) => (
               <RLMarker
                 key={`mine-${a._id}`}
@@ -177,7 +235,6 @@ export default function MapScreen() {
               </RLMarker>
             ))}
 
-            {/* Publiques des autres (bleu) */}
             {othersPublic.map((a) => (
               <RLMarker
                 key={`other-${a._id}`}
@@ -208,7 +265,6 @@ export default function MapScreen() {
 
   return (
     <View style={{ flex: 1 }}>
-      {/* Header / Ping bar (mobile) */}
       <View style={[styles.header, { top: topOffset }]}>
         <View style={styles.legend}>
           <LegendItem color="red" label="Vous" count={location ? 1 : 0} />
@@ -218,6 +274,7 @@ export default function MapScreen() {
       </View>
 
       <MapView
+        ref={mapRef}
         style={{ flex: 1 }}
         initialRegion={{
           latitude: location.latitude,
@@ -227,14 +284,12 @@ export default function MapScreen() {
         }}
         showsUserLocation={false}
       >
-        {/* Position utilisateur (rouge) */}
         <Marker
           coordinate={{ latitude: location.latitude, longitude: location.longitude }}
           title="Vous"
           pinColor="red"
         />
 
-        {/* Mes adresses (vert) */}
         {myAddresses.map((a) => (
           <Marker
             key={`mine-${a._id}`}
@@ -244,7 +299,6 @@ export default function MapScreen() {
           />
         ))}
 
-        {/* Publiques des autres (bleu) */}
         {othersPublic.map((a) => (
           <Marker
             key={`other-${a._id}`}
@@ -284,7 +338,7 @@ const styles = StyleSheet.create({
   legend: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12, 
+    gap: 12,
   },
   legendItem: {
     flexDirection: 'row',

@@ -131,7 +131,7 @@ export default function CreateAddressScreen({ navigation }) {
       if (webMarkerRef.current) {
         webMarkerRef.current.setLatLng(latlng);
       } else {
-        webMarkerRef.current = L.marker(latlng).addTo(webLeafletMap.current);
+        webMarkerRef.current = L.marker([coords.latitude, coords.longitude]).addTo(webLeafletMap.current);
       }
     }
   };
@@ -162,7 +162,8 @@ export default function CreateAddressScreen({ navigation }) {
         photoURL = await getDownloadURL(imageRef);
       }
 
-      await addDoc(collection(db, 'addresses'), {
+      // On ajoute le document à Firestore
+      const docRef = await addDoc(collection(db, 'addresses'), {
         title: title.trim(),
         description: description.trim(),
         isPublic,
@@ -173,7 +174,22 @@ export default function CreateAddressScreen({ navigation }) {
         createdAt: serverTimestamp(),
       });
 
-      navigation.goBack();
+      // Construire un objet "createdAddress" que MapScreen sait lire
+      const createdAddress = {
+        _id: docRef.id,
+        title: title.trim(),
+        description: description.trim(),
+        isPublic,
+        location: { latitude: location.latitude, longitude: location.longitude },
+        ownerUid: user.uid,
+        ownerName: user.displayName || user.email || 'Anonyme',
+        images: photoURL ? [photoURL] : [],
+        createdAt: new Date().toISOString(),
+      };
+
+      // Naviguer vers la map en passant l'adresse créée : MapScreen l'ajoutera et affichera le marqueur
+      navigation.navigate('Map', { createdAddress });
+
     } catch (err) {
       console.error(err);
       alert("Erreur lors de la création de l'adresse");
@@ -290,7 +306,7 @@ export default function CreateAddressScreen({ navigation }) {
           />
           {searchLoading && <Text style={{ marginTop: 4 }}>Recherche en cours…</Text>}
 
-          {/* === Remplacé FlatList par un rendu simple pour éviter l'erreur de listes imbriquées === */}
+          {/* Suggestions */}
           {suggestions.length > 0 && (
             <View style={createAddressStyles.suggestionsWrap} keyboardShouldPersistTaps="handled">
               {suggestions.map((item) => (
@@ -347,10 +363,8 @@ export default function CreateAddressScreen({ navigation }) {
 
         {/* Bouton créer */}
         <Button title="Créer l'adresse" onPress={createAddress} />
-        {/* petit padding bas pour laisser de l'espace au scroll */}
         <View style={{ height: 20 }} />
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
-
