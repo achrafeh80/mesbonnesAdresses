@@ -1,10 +1,10 @@
 {
-  "newArchEnabled": false,
   "expo": {
     "name": "Mes Bonnes Adresses",
     "slug": "mes-bonnes-adresses",
     "version": "1.0.0",
     "orientation": "portrait",
+    "newArchEnabled": false,
     "platforms": [
       "ios",
       "android",
