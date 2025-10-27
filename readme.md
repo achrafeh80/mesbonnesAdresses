@@ -82,6 +82,8 @@ Elle permet aux utilisateurs de sauvegarder, gérer et partager leurs adresses f
 | **Gestion des images**  | Expo ImagePicker                                    |
 | **Localisation GPS**    | Expo Location                                       |
 | **UI**                  | StyleSheet React Native, design épuré et responsive |
+| **Tests**               | Jest                                                |
+| **Test e2e**           | maestro                                             |
 
 
 ---
@@ -91,23 +93,22 @@ Elle permet aux utilisateurs de sauvegarder, gérer et partager leurs adresses f
 bonneAdresses-main/
 │
 ├── frontend/
-│   ├──_test_ # Tests unitaires
+│   ├── _test_/                    # Tests unitaires
 │   │   ├── Auth.test.js  
 │   │   ├── AddressesList.test.js
 │   │   └── CreateAddress.test.js
-│   ├──maestro # Tests e2e
+│   │
+│   ├── maestro/                   # Tests e2e (Maestro)
 │   │   ├── login.yaml  
 │   │   ├── signup.yaml
 │   │   ├── public-addresses.yaml
 │   │   └── create-addresses.yaml
-│   ├── App.js                      
-│   ├── app.json
-│   ├── package.json
-│   ├── babel.config.js
-│   ├── metro.config.js
-│   ├── assets/                
-│   ├── navigation/            
-│   ├── screens/            
+│   │
+│   ├── assets/                   
+│   │
+│   ├── navigation/                
+│   │
+│   ├── screens/                   
 │   │   ├── LoginScreen.js
 │   │   ├── SignupScreen.js
 │   │   ├── ProfileScreen.js
@@ -115,12 +116,28 @@ bonneAdresses-main/
 │   │   ├── AddressDetailScreen.js
 │   │   ├── MyAddressesScreen.js
 │   │   ├── PublicAddressesScreen.js
-│   │   ├── MapScreen.js
-│   ├── utils/
-│       └── firebase.js        # Configuration Firebase
-└── README.md                  # Documentation complète
-```
-
+│   │   └── MapScreen.js
+│   │
+│   ├── styles/                    # Styles organisés par écran
+│   │   ├── loginStyles.js  
+│   │   ├── profileStyle.js
+│   │   ├── signUpStyles.js
+│   │   └── adress/                
+│   │       ├── adressDetailsStyles.js
+│   │       ├── createAddressStyles.js  
+│   │       ├── mainAddressStyles.js
+│   │       └── publicAddressStyles.js          
+│   │
+│   ├── utils/                     
+│   │   └── firebase.js
+│   │
+│   ├── App.js                    
+│   ├── app.json
+│   ├── package.json
+│   ├── babel.config.js
+│   └── metro.config.js
+│
+└── README.md                      
 ---
 
 ## 🚀 Installation & exécution
