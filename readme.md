@@ -70,22 +70,19 @@ Elle permet aux utilisateurs de sauvegarder, gérer et partager leurs adresses f
 
 ## 🛠️ Technologies utilisées
 
-<div align="center">
+| Domaine                 | Outil / Technologie                                 |
+|:------------------------|:----------------------------------------------------|
+| **Frontend**            | React Native (Expo)                                 |
+| **Base de données**     | Firebase Firestore                                  |
+| **Stockage**            | Firebase Storage                                    |
+| **Authentification**    | Firebase Auth                                       |
+| **Cartographie mobile** | React Native Maps                                   |
+| **Cartographie web**    | React Leaflet + OpenStreetMap                       |
+| **Langage**             | JavaScript (ES6)                                    |
+| **Gestion des images**  | Expo ImagePicker                                    |
+| **Localisation GPS**    | Expo Location                                       |
+| **UI**                  | StyleSheet React Native, design épuré et responsive |
 
-| Domaine | Outil / Technologie |
-|:---|:---|
-| **Frontend** | React Native (Expo) |
-| **Base de données** | Firebase Firestore |
-| **Stockage** | Firebase Storage |
-| **Authentification** | Firebase Auth |
-| **Cartographie mobile** | React Native Maps |
-| **Cartographie web** | React Leaflet + OpenStreetMap |
-| **Langage** | JavaScript (ES6) |
-| **Gestion des images** | Expo ImagePicker |
-| **Localisation GPS** | Expo Location |
-| **UI** | StyleSheet React Native, design épuré et responsive |
-
-</div>
 
 ---
 
@@ -94,11 +91,15 @@ Elle permet aux utilisateurs de sauvegarder, gérer et partager leurs adresses f
 bonneAdresses-main/
 │
 ├── frontend/
-│   ├──_test_
-│   │   ├── CreateTest.tes.js  
-│   │   ├── LoginTest.tes.js
-│   │   ├── MyAdressTest.tes.js
-│   │   └── PublicAdress.tes.js                
+│   ├──_test_ # Tests unitaires
+│   │   ├── Auth.test.js  
+│   │   ├── AddressesList.test.js
+│   │   └── CreateAddress.test.js
+│   ├──maestro # Tests e2e
+│   │   ├── login.yaml  
+│   │   ├── signup.yaml
+│   │   ├── public-addresses.yaml
+│   │   └── create-addresses.yaml
 │   ├── App.js                      
 │   ├── app.json
 │   ├── package.json
@@ -143,7 +144,6 @@ cd mesbonnesAdresses/frontend
 ### 3️⃣ Installer les dépendances
 ```bash
 npm install
-npm update --legacy-peer-deps
 ```
 
 ### 4️⃣ Configurer Firebase
@@ -157,6 +157,8 @@ EXPO_PUBLIC_FIREBASE_PROJECT_ID=PROJECT_ID_EXAMPLE
 EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=PROJECT_ID_EXAMPLE.appspot.com
 EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=MESSAGE_SENDER_ID_EXAMPLE
 EXPO_PUBLIC_FIREBASE_APP_ID=1:1234567890:web:abcdef123456_EXAMPLE
+EXPO_PUBLIC_GOOGLE_MAPS_API_KEY_ANDROID=CLE_API_GOOGLE_MAPS_API_KEY_ANDROID
+EXPO_PUBLIC_GOOGLE_MAPS_API_KEY_IOS=CLE_API_GOOGLE_MAPS_API_KEY_IOS
 ```
 
 ### 5️⃣ Lancer le projet
@@ -164,7 +166,7 @@ EXPO_PUBLIC_FIREBASE_APP_ID=1:1234567890:web:abcdef123456_EXAMPLE
 #### 📱 Mobile (Android / iOS)
 ```bash
 npx expo start --tunnel 
-or
+ou
 npx expo start -c --tunnel
 ```
 
@@ -202,17 +204,102 @@ Pour lancer les tests rendez vous dans le dossier frontend et lancez:
 npm test
 ```
 
-### Tests e2E
-
-```bash
-# iOS
-detox build --configuration ios.sim.debug
-detox test --configuration ios.sim.debug
-
-# Android
-detox build --configuration android.emu.debug
-detox test --configuration android.emu.debug
+## Tests e2E
+### Étape 1 : Lancer l'Émulateur Android
+### Option A : Via Android Studio 
 
 ```
+1. Ouvrez Android Studio
+2. Cliquez sur "More Actions" > "Virtual Device Manager"
+3. Si vous n'avez pas d'émulateur :
+   - Cliquez sur "Create Device"
+   - Sélectionnez "Pixel 5" ou "Pixel 6"
+   - Sélectionnez "API 33" ou "API 34" (Android 13/14)
+   - Cliquez sur "Finish"
+4. Cliquez sur le bouton Play pour lancer l'émulateur
+5. Attendez que l'émulateur démarre complètement (1-2 minutes)
+```
 
----
+### Option B : Via Ligne de Commande
+
+```bash
+# Lister les émulateurs disponibles
+emulator -list-avds
+
+# Lancer un émulateur (remplacez Pixel_5_API_33 par votre nom d'émulateur)
+emulator -avd Pixel_5_API_33
+```
+
+### Vérifier que l'émulateur est connecté
+
+```bash
+adb devices
+
+# Devrait afficher quelque chose comme :
+# List of devices attached
+# emulator-5554    device
+```
+
+### Étape 2 : Récupérer les Clés Google Maps API
+
+### A. Accéder à Google Cloud Console
+
+1. Allez sur : **https://console.cloud.google.com/**
+2. Connectez-vous avec votre compte Google
+3. Cliquez sur le menu projet en haut → **"NOUVEAU PROJET"**
+4. Nom : **"Mes Bonnes Adresses"**
+5. Cliquez sur **"CRÉER"**
+6. Attendez quelques secondes puis sélectionnez votre projet
+
+### B. Activer l'API Maps SDK for Android
+
+```
+1. Menu latéral : "APIs et services" → "Bibliothèque"
+2. Recherchez : "Maps SDK for Android"
+3. Cliquez dessus
+4. Cliquez sur "ACTIVER"
+5. Attendez quelques secondes
+```
+
+### C. Créer une Clé API
+
+```
+1. Menu latéral : "APIs et services" → "Identifiants"
+2. En haut : "+ CRÉER DES IDENTIFIANTS" → "Clé API"
+3. Une clé est générée
+4. Copiez votre clé API : AIzaSyXXXXXXXXXXXXXXXXXXXX
+```
+### Étape 3 : Prebuild de l'Application
+
+Cette étape génère les fichiers natifs Android avec votre configuration Google Maps.
+
+```bash
+# 1. Nettoyer les anciens fichiers
+rm -rf node_modules
+npm install
+
+# 2. Prebuild (génère le dossier android/ avec la config)
+npx expo prebuild --clean
+```
+
+**Sur Windows**, remplacez `rm -rf` par `rmdir /s /q` :
+
+```bash
+rmdir /s /q node_modules
+npm install
+npx expo prebuild --clean
+```
+### Étape 4 : Lancer l'Application
+
+```bash
+# Build et lancer l'app sur l'émulateur
+npx expo run:android
+puis 
+Appuyer sur "a"
+```
+
+### Étape 5 : Lancer les Tests
+```bash
+# Sur Windows (PowerShell)
+maestro test .\maestro\signup.yaml ou maestro test .\maestro\login.yaml
+```

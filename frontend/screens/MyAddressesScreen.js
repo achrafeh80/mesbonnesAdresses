@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -7,8 +7,7 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
-import { getAuth } from 'firebase/auth';
-import { db } from '../utils/firebase';
+import { auth, db } from '../utils/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import mainAddressStyles from '../styles/adress/mainAddressStyles';
 
@@ -18,7 +17,6 @@ export default function MyAddressesScreen({ navigation }) {
 
   const fetchAddresses = async () => {
     setLoading(true);
-    const auth = getAuth();
     const user = auth.currentUser;
     if (!user) {
       setAddresses([]);
@@ -57,7 +55,7 @@ export default function MyAddressesScreen({ navigation }) {
         activeOpacity={0.8}
         onPress={() => navigation.navigate('AddressDetail', { addressId: item._id })}
       >
-        {/* Cover image */}
+
         {cover ? (
           <Image source={{ uri: cover }} style={mainAddressStyles.cover} />
         ) : (
@@ -66,7 +64,6 @@ export default function MyAddressesScreen({ navigation }) {
           </View>
         )}
 
-        {/* Content */}
         <View style={mainAddressStyles.content}>
           <View style={mainAddressStyles.rowBetween}>
             <Text numberOfLines={1} style={mainAddressStyles.title}>{item.title || 'Sans titre'}</Text>
@@ -84,7 +81,6 @@ export default function MyAddressesScreen({ navigation }) {
           )}
 
           <View style={mainAddressStyles.metaRow}>
-            {/* Rating */}
             <View style={mainAddressStyles.ratingWrap}>
               <Text style={mainAddressStyles.star}>{rating ? '★' : '☆'}</Text>
               <Text style={mainAddressStyles.ratingText}>
@@ -92,7 +88,7 @@ export default function MyAddressesScreen({ navigation }) {
                 {ratingsCount ? ` · ${ratingsCount}` : ''}
               </Text>
             </View>
-            {/* Owner tag (moi) */}
+
             <Text style={mainAddressStyles.ownerTag}>Moi</Text>
           </View>
         </View>

@@ -1,0 +1,94 @@
+appId: com.achrafeh.mesbonnesadresses
+---
+
+- tapOn: , My Addresses
+- assertVisible: + Créer une adresse
+- tapOn: + Créer une adresse
+- assertVisible: Titre
+- assertVisible: Description
+- assertVisible: Privée
+- assertVisible: Publique
+- assertVisible: CHOISIR UNE PHOTO
+
+- tapOn: Titre de l'adresse
+- inputText: Mon Restaurant Prefere
+- tapOn: Description (facultative)
+- inputText: Excellent restaurant avec une super ambiance
+
+- scrollUntilVisible:
+    element:
+      text: UTILISER MA POSITION ACTUELLE
+- tapOn: UTILISER MA POSITION ACTUELLE
+- scrollUntilVisible:
+    element:
+      text: CRÉER L'ADRESSE
+- tapOn: CRÉER L'ADRESSE
+
+- assertVisible: , Map
+- assertVisible: , My Addresses
+- tapOn: , My Addresses
+- tapOn: Revenir en haut de la page
+- tapOn: Aucune image, Mon Restaurant Prefere, Privée, Excellent restaurant avec une super ambiance, ☆, Pas de note, Moi
+- assertVisible: Mon Restaurant Préféré
+- assertVisible: Note globale
+- assertVisible: Localisation
+- assertVisible: Ajouter une image
+- scrollUntilVisible:
+    element:
+      text: Supprimer l’adresse
+- tapOn: Supprimer l’adresse
+- assertVisible: SUPPRIMER
+- tapOn: SUPPRIMER
+- assertVisible: OK
+- tapOn: OK
+- tapOn: "Mes adresses"
+- assertVisible: "Mon Restaurant Préféré"
+- assertVisible: "Privée"
+- tapOn: "+ Créer une adresse"
+
+- tapOn: "Titre de l'adresse"
+- inputText: "Parc Public"
+
+- tapOn: "Description (facultative)"
+- inputText: "Beau parc pour se promener"
+
+- tapOn:
+    id: "switch"
+    index: 0
+
+- scrollUntilVisible:
+    element: "Utiliser ma position actuelle"
+    direction: DOWN
+
+- tapOn: "Utiliser ma position actuelle"
+
+- scrollUntilVisible:
+    element: "Créer l'adresse"
+    direction: DOWN
+
+- tapOn: "Créer l'adresse"
+
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- tapOn: "Mes adresses"
+- assertVisible: "Mon Restaurant Préféré"
+- assertVisible: "Parc Public"
+- assertVisible: "Privée"
+- assertVisible: "Publique"
+
+- tapOn: "+ Créer une adresse"
+
+- tapOn: "Titre de l'adresse"
+- inputText: "Tour Eiffel"
+
+- tapOn: "Rechercher une adresse"
+- inputText: "Tour Eiffel Paris"
+
+- scrollUntilVisible:
+    element: "Créer l'adresse"
+    direction: DOWN
+
+- back
+
+- assertVisible: "Mon Restaurant Préféré"

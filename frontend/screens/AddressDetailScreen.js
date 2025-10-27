@@ -72,10 +72,11 @@ export default function AddressDetailScreen({ route, navigation }) {
           link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
           document.head.appendChild(link);
         }
-        const [{ MapContainer, TileLayer, Marker: RLMarker }, leaflet] = await Promise.all([
-          import('react-leaflet'),
-          import('leaflet'),
-        ]);
+        const RL = require('react-leaflet');
+        const leaflet = require('leaflet');
+        const MapContainer = RL.MapContainer;
+        const TileLayer = RL.TileLayer;
+        const RLMarker = RL.Marker;
 
         const L = leaflet.default || leaflet;
         delete L.Icon.Default.prototype._getIconUrl;
@@ -452,7 +453,6 @@ const deleteAddress = async () => {
     <ScrollView contentContainerStyle={addressDetailStyles.container}>
       <Text style={addressDetailStyles.title}>{address.title || 'Adresse'}</Text>
 
-      {/* ⭐️ Rating */}
       <View style={addressDetailStyles.ratingCard}>
         <View style={addressDetailStyles.ratingTopRow}>
           <Text style={addressDetailStyles.ratingTitle}>Note globale</Text>
@@ -464,7 +464,6 @@ const deleteAddress = async () => {
         {!user && <Text style={addressDetailStyles.ratingHint}>Connecte-toi pour noter cette adresse.</Text>}
       </View>
 
-      {/* 🗺️ Mini-carte */}
       {hasLocation && Platform.OS !== 'web' && miniMapRegion && (
         <View style={addressDetailStyles.mapCard}>
           <Text style={addressDetailStyles.sectionTitle}>Localisation</Text>
@@ -484,7 +483,6 @@ const deleteAddress = async () => {
       )}
       {hasLocation && Platform.OS === 'web' && <WebMiniMap />}
 
-      {/* Galerie */}
       {!!address.images?.length && (
         <ScrollView horizontal style={addressDetailStyles.imagesRow} showsHorizontalScrollIndicator={false}>
           {address.images.map((u, idx) => (
@@ -493,7 +491,6 @@ const deleteAddress = async () => {
         </ScrollView>
       )}
 
-      {/* Ajouter une image */}
       <View style={addressDetailStyles.section}>
         <Text style={addressDetailStyles.sectionTitle}>Ajouter une image</Text>
         {pickedUri ? (
@@ -520,7 +517,6 @@ const deleteAddress = async () => {
         </View>
       </View>
 
-      {/* Nouveau commentaire */}
       <View style={addressDetailStyles.section}>
         <Text style={addressDetailStyles.sectionTitle}>Nouveau commentaire</Text>
         <TextInput
@@ -535,7 +531,6 @@ const deleteAddress = async () => {
         </Pressable>
       </View>
 
-      {/* Commentaires */}
       {!!address.comments?.length && (
         <View style={addressDetailStyles.section}>
           <Text style={addressDetailStyles.sectionTitle}>Commentaires</Text>
@@ -562,7 +557,6 @@ const deleteAddress = async () => {
         </View>
       )}
 
-      {/* Suppression de l’adresse (propriétaire) */}
       {user && address.ownerUid === user.uid && (
         <View style={addressDetailStyles.section}>
           <Pressable onPress={deleteAddress} style={[addressDetailStyles.btn, { backgroundColor: '#d9534f' }]}>

@@ -12,11 +12,10 @@ import {
   Switch,
   ScrollView,
 } from 'react-native';
-import { getAuth } from 'firebase/auth';
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
 import MapView, { Marker } from 'react-native-maps';
-import { db, storage } from '../utils/firebase';
+import { auth, db, storage } from '../utils/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import createAddressStyles from '../styles/adress/createAddressStyles';
@@ -146,7 +145,6 @@ export default function CreateAddressScreen({ navigation }) {
       return;
     }
     try {
-      const auth = getAuth();
       const user = auth.currentUser;
       if (!user) {
         alert('Vous devez être connecté');
@@ -162,7 +160,6 @@ export default function CreateAddressScreen({ navigation }) {
         photoURL = await getDownloadURL(imageRef);
       }
 
-      // On ajoute le document à Firestore
       const docRef = await addDoc(collection(db, 'addresses'), {
         title: title.trim(),
         description: description.trim(),
@@ -174,7 +171,6 @@ export default function CreateAddressScreen({ navigation }) {
         createdAt: serverTimestamp(),
       });
 
-      // Construire un objet "createdAddress" que MapScreen sait lire
       const createdAddress = {
         _id: docRef.id,
         title: title.trim(),
@@ -187,7 +183,6 @@ export default function CreateAddressScreen({ navigation }) {
         createdAt: new Date().toISOString(),
       };
 
-      // Naviguer vers la map en passant l'adresse créée : MapScreen l'ajoutera et affichera le marqueur
       navigation.navigate('Map', { createdAddress });
 
     } catch (err) {
@@ -252,13 +247,13 @@ export default function CreateAddressScreen({ navigation }) {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Titre */}
+
         <View style={{ marginBottom: 12 }}>
           <Text style={createAddressStyles.label}>Titre</Text>
           <TextInput value={title} onChangeText={setTitle} placeholder="Titre de l'adresse" style={createAddressStyles.input} />
         </View>
 
-        {/* Description */}
+
         <View style={{ marginBottom: 12 }}>
           <Text style={createAddressStyles.label}>Description</Text>
           <TextInput
@@ -270,7 +265,7 @@ export default function CreateAddressScreen({ navigation }) {
           />
         </View>
 
-        {/* Interrupteur Publique / Privée */}
+
         <View style={createAddressStyles.switchRow}>
           <Text style={createAddressStyles.switchLabel}>Privée</Text>
           <Switch
@@ -282,7 +277,7 @@ export default function CreateAddressScreen({ navigation }) {
           <Text style={createAddressStyles.switchLabel}>Publique</Text>
         </View>
 
-        {/* Choisir une photo + aperçu + bouton supprimer */}
+
         <View style={{ marginBottom: 12 }}>
           <Button title="Choisir une photo" onPress={pickImage} />
           {!!photo && (
@@ -295,7 +290,6 @@ export default function CreateAddressScreen({ navigation }) {
           )}
         </View>
 
-        {/* Barre de recherche d'adresse */}
         <View style={{ marginBottom: 8 }}>
           <Text style={createAddressStyles.label}>Recherche d'adresse</Text>
           <TextInput
@@ -306,7 +300,6 @@ export default function CreateAddressScreen({ navigation }) {
           />
           {searchLoading && <Text style={{ marginTop: 4 }}>Recherche en cours…</Text>}
 
-          {/* Suggestions */}
           {suggestions.length > 0 && (
             <View style={createAddressStyles.suggestionsWrap} keyboardShouldPersistTaps="handled">
               {suggestions.map((item) => (
@@ -323,7 +316,6 @@ export default function CreateAddressScreen({ navigation }) {
           )}
         </View>
 
-        {/* Carte en dessous de la barre de recherche */}
         <View style={{ marginBottom: 12, height: 220 }}>
           {Platform.OS === 'web' ? (
             <View ref={webMapRef} style={createAddressStyles.webMap} />
@@ -356,12 +348,10 @@ export default function CreateAddressScreen({ navigation }) {
           )}
         </View>
 
-        {/* Utiliser ma position actuelle */}
         <View style={{ marginBottom: 16 }}>
           <Button title="Utiliser ma position actuelle" onPress={useCurrentLocation} />
         </View>
 
-        {/* Bouton créer */}
         <Button title="Créer l'adresse" onPress={createAddress} />
         <View style={{ height: 20 }} />
       </ScrollView>

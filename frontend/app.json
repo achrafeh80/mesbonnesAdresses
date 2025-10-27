@@ -4,7 +4,7 @@
     "slug": "mes-bonnes-adresses",
     "version": "1.0.0",
     "orientation": "portrait",
-    "newArchEnabled": false,
+    "newArchEnabled": true,
     "platforms": [
       "ios",
       "android",
@@ -21,11 +21,44 @@
     "ios": {
       "bundleIdentifier": "com.achrafeh.mesbonnesadresses",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSLocationWhenInUseUsageDescription": "Cette application a besoin de votre localisation pour afficher vos adresses sur la carte.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Cette application a besoin de votre localisation pour afficher vos adresses sur la carte."
+      },
+      "config": {
+        "googleMapsApiKey": "process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY_IOS"
       }
     },
     "android": {
-      "package": "com.achrafeh.mesbonnesadresses"
-    }
+      "package": "com.achrafeh.mesbonnesadresses",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_MEDIA_IMAGES"
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": "process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY_ANDROID"
+        }
+      }
+    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Autoriser l'application à utiliser votre localisation pour afficher vos adresses."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "L'application a besoin d'accéder à vos photos pour ajouter des images à vos adresses.",
+          "cameraPermission": "L'application a besoin d'accéder à votre appareil photo pour prendre des photos."
+        }
+      ]
+    ]
   }
 }

@@ -7,10 +7,11 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-  TouchableOpacity,
 } from 'react-native';
-import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../utils/firebase';
 import logInStyles from '../styles/loginStyles';
+
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,7 +23,6 @@ export default function LoginScreen({ navigation }) {
     setErr('');
     setLoading(true);
     try {
-      const auth = getAuth();
       await signInWithEmailAndPassword(auth, email.trim(), password);
     } catch (e) {
       setErr('Identifiants invalides ou compte introuvable.');

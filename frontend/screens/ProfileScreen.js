@@ -6,17 +6,15 @@ import {
   TextInput,
   Button,
   Alert,
-  Platform,
   TouchableOpacity,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { getAuth, updateProfile, signOut } from 'firebase/auth';
-import { storage } from '../utils/firebase';
+import { updateProfile, signOut } from 'firebase/auth';
+import { auth, storage } from '../utils/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import profileStyles from '../styles/profileStyles';
 
 export default function ProfileScreen({ navigation }) {
-  const auth = getAuth();
   const user = auth.currentUser;
   const isHttpUrl = (u) => typeof u === 'string' && /^https?:\/\//i.test(u);
   const isReasonableLength = (u) => typeof u === 'string' && u.length <= 2000;
@@ -43,7 +41,7 @@ export default function ProfileScreen({ navigation }) {
         aspect: [1, 1],
       });
       if (!result.canceled && result.assets && result.assets.length > 0) {
-        setAvatarUri(result.assets[0].uri); 
+        setAvatarUri(result.assets[0].uri);
       }
     } catch (e) {
       console.warn('pickAvatar error:', e?.message || e);
@@ -72,7 +70,7 @@ export default function ProfileScreen({ navigation }) {
           newPhotoURL = await getDownloadURL(storageRef);
         } catch (err) {
           console.warn('Upload avatar échoué:', err?.message || err);
-          Alert.alert('Erreur', "L’upload de l’avatar a échoué.");
+          Alert.alert('Erreur', "L'upload de l'avatar a échoué.");
         }
       }
 
@@ -125,7 +123,7 @@ export default function ProfileScreen({ navigation }) {
               resizeMode="cover"
             />
             <TouchableOpacity style={profileStyles.changeBtn} onPress={pickAvatar}>
-              <Text style={profileStyles.changeBtnText}>Changer l’avatar</Text>
+              <Text style={profileStyles.changeBtnText}>Changer l'avatar</Text>
             </TouchableOpacity>
           </View>
 
@@ -149,7 +147,7 @@ export default function ProfileScreen({ navigation }) {
       ) : (
         <View style={profileStyles.center}>
           <Text style={profileStyles.infoText}>
-            Vous n’êtes pas connecté. Créez un compte pour accéder à votre profil.
+            Vous n'êtes pas connecté. Créez un compte pour accéder à votre profil.
           </Text>
           <Button title="S'inscrire" onPress={handleSignupRedirect} />
         </View>

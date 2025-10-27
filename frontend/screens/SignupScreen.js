@@ -8,7 +8,8 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { auth } from '../utils/firebase';
 import signUpStyles from '../styles/signUpStyles';
 
 export default function SignupScreen({ navigation }) {
@@ -23,7 +24,6 @@ export default function SignupScreen({ navigation }) {
     setErr('');
     setLoading(true);
     try {
-      const auth = getAuth();
       const cred = await createUserWithEmailAndPassword(auth, email.trim(), password);
       if (displayName.trim()) {
         await updateProfile(cred.user, { displayName: displayName.trim() });
@@ -46,7 +46,7 @@ export default function SignupScreen({ navigation }) {
         <Text style={signUpStyles.subtitle}>Bienvenue parmi nous ✨</Text>
 
         <View style={signUpStyles.field}>
-          <Text style={signUpStyles.label}>Nom d’utilisateur</Text>
+          <Text style={signUpStyles.label}>Nom d'utilisateur</Text>
           <TextInput
             placeholder="ex: Jean Dupont"
             value={displayName}
@@ -90,7 +90,7 @@ export default function SignupScreen({ navigation }) {
         {err ? <Text style={signUpStyles.error}>{err}</Text> : null}
 
         <Pressable style={[signUpStyles.btn, loading && signUpStyles.btnDisabled]} onPress={signup} disabled={loading}>
-          {loading ? <ActivityIndicator color="#fff" /> : <Text style={signUpStyles.btnText}>S’inscrire</Text>}
+          {loading ? <ActivityIndicator color="#fff" /> : <Text style={signUpStyles.btnText}>S'inscrire</Text>}
         </Pressable>
 
         <View style={signUpStyles.divider} />

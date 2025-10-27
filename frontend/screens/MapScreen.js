@@ -1,21 +1,42 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, ActivityIndicator, Alert, Platform, StyleSheet, StatusBar } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import { View, Text, ActivityIndicator, Platform, StyleSheet, StatusBar } from 'react-native';
 import * as Location from 'expo-location';
-import { getAuth } from 'firebase/auth';
-import { db } from '../utils/firebase';
+import { auth, db } from '../utils/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
-const useLeaflet = () => {
-  const [RL, setRL] = useState(null);
-  const [ready, setReady] = useState(false);
-  const [err, setErr] = useState(null);
+
+let MapView, Marker;
+let MapContainer, TileLayer, RLMarker, Popup, L, icons;
+
+if (Platform.OS !== 'web') {
+  const RNMaps = require('react-native-maps');
+  MapView = RNMaps.default || RNMaps;
+  Marker = RNMaps.Marker;
+}
+
+export default function MapScreen() {
+  const currentUser = auth.currentUser;
+
+  const [location, setLocation] = useState(null);
+  const [myAddresses, setMyAddresses] = useState([]);
+  const [othersPublic, setOthersPublic] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [webMapReady, setWebMapReady] = useState(false);
+
+  const navigation = useNavigation();
+  const route = useRoute();
+
+  const mapRef = useRef(null);
+  const [mapInstance, setMapInstance] = useState(null);
 
   useEffect(() => {
     if (Platform.OS !== 'web') return;
+
     let mounted = true;
-    (async () => {
+
+    const loadWebMap = async () => {
       try {
         if (!document.getElementById('leaflet-css')) {
           const link = document.createElement('link');
@@ -24,118 +45,126 @@ const useLeaflet = () => {
           link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
           document.head.appendChild(link);
         }
-        const [{ MapContainer, TileLayer, Marker: RLMarker, Popup }, leaflet] = await Promise.all([
-          import('react-leaflet'),
-          import('leaflet'),
-        ]);
-        const L = leaflet.default || leaflet;
 
-        const mk = (url) =>
-          new L.Icon({
-            iconUrl: url,
-            shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34],
-            shadowSize: [41, 41],
-          });
-        const red = mk('https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png');
-        const green = mk('https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png');
-        const blue = mk('https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png');
+        const RL = require('react-leaflet');
+        const leaflet = require('leaflet');
+
+        MapContainer = RL.MapContainer;
+        TileLayer = RL.TileLayer;
+        RLMarker = RL.Marker;
+        Popup = RL.Popup;
+        L = leaflet.default || leaflet;
+
+        const createIcon = (url) => new L.Icon({
+          iconUrl: url,
+          shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowSize: [41, 41],
+        });
+
+        icons = {
+          red: createIcon('https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png'),
+          green: createIcon('https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png'),
+          blue: createIcon('https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png'),
+        };
 
         if (mounted) {
-          setRL({ MapContainer, TileLayer, RLMarker, Popup, L, icons: { red, green, blue } });
-          setReady(true);
+          setWebMapReady(true);
         }
       } catch (e) {
+        console.error('Erreur chargement carte web:', e);
         if (mounted) {
-          setErr(e?.message || String(e));
-          setReady(false);
+          setError('Erreur chargement carte web');
         }
       }
-    })();
+    };
+
+    loadWebMap();
+
     return () => {
       mounted = false;
     };
   }, []);
 
-  return { RL, ready, err };
-};
-
-export default function MapScreen() {
-  const auth = getAuth();
-  const currentUser = auth.currentUser;
-
-  const [location, setLocation] = useState(null);
-  const [myAddresses, setMyAddresses] = useState([]);
-  const [othersPublic, setOthersPublic] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  const { RL, ready: leafletReady, err: leafletErr } = useLeaflet();
-
-  const navigation = useNavigation();
-  const route = useRoute();
-
-  // refs for map controls
-  const mapRef = useRef(null); // for react-native-maps
-  const [mapInstance, setMapInstance] = useState(null); // for react-leaflet
-
   useEffect(() => {
+    let mounted = true;
+
     (async () => {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
+
         if (status !== 'granted') {
-          Alert.alert('Permission refusée', "L'accès à la localisation est requis.");
-        } else {
-          const loc = await Location.getCurrentPositionAsync({});
+          if (mounted) {
+            setError('Permission de localisation refusée. Activez-la dans les paramètres de l\'app.');
+            setLoading(false);
+          }
+          return;
+        }
+
+        const loc = await Location.getCurrentPositionAsync({});
+
+        if (mounted) {
           setLocation({ latitude: loc.coords.latitude, longitude: loc.coords.longitude });
         }
       } catch (e) {
-        console.warn('Erreur localisation:', e?.message || e);
+        console.error('Erreur localisation:', e);
+        if (mounted) {
+          setError(`Erreur de localisation: ${e.message}`);
+        }
       }
 
       try {
+        console.log('Chargement adresses Firestore...');
         if (currentUser) {
           const mineSnap = await getDocs(query(collection(db, 'addresses'), where('ownerUid', '==', currentUser.uid)));
-          setMyAddresses(mineSnap.docs.map((d) => ({ _id: d.id, ...d.data() })));
+          if (mounted) {
+            setMyAddresses(mineSnap.docs.map((d) => ({ _id: d.id, ...d.data() })));
+          }
+          console.log('Mes adresses chargées:', mineSnap.docs.length);
         } else {
-          setMyAddresses([]);
+          if (mounted) setMyAddresses([]);
         }
+
         const publicSnap = await getDocs(query(collection(db, 'addresses'), where('isPublic', '==', true)));
         const allPublic = publicSnap.docs.map((d) => ({ _id: d.id, ...d.data() }));
-        setOthersPublic(
-          allPublic.filter((a) => !currentUser || a.ownerUid !== currentUser.uid)
-        );
+        if (mounted) {
+          setOthersPublic(
+            allPublic.filter((a) => !currentUser || a.ownerUid !== currentUser.uid)
+          );
+        }
+        console.log('Adresses publiques chargées:', allPublic.length);
       } catch (e) {
-        console.warn('Erreur Firestore:', e?.message || e);
+        console.error('Erreur Firestore:', e);
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
-  // Gestion du param "createdAddress" lorsqu'on revient de CreateAddressScreen
+    return () => {
+      mounted = false;
+    };
+  }, [currentUser]);
+
   useEffect(() => {
     const created = route.params?.createdAddress;
     if (!created) return;
 
-    // Si c'est une de mes adresses, l'ajouter dans myAddresses
     if (currentUser && created.ownerUid === currentUser.uid) {
       setMyAddresses((prev) => {
-        // éviter doublons si déjà présent
         if (prev.some((p) => p._id === created._id)) return prev;
         return [created, ...prev];
       });
     } else if (created.isPublic) {
-      // si c'est publique et pas à moi, l'ajouter aux publics
       setOthersPublic((prev) => {
         if (prev.some((p) => p._id === created._id)) return prev;
         return [created, ...prev];
       });
     }
 
-    // recentrer la carte sur le marqueur nouvellement ajouté
     const lat = created.location?.latitude;
     const lon = created.location?.longitude;
     if (lat != null && lon != null) {
@@ -157,14 +186,10 @@ export default function MapScreen() {
       }
     }
 
-    // nettoyer le param pour ne pas le ré-appliquer
     try {
       navigation.setParams({ createdAddress: undefined });
-    } catch (e) {
-      // pas bloquant si navigation.setParams indisponible
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [route.params?.createdAddress, mapInstance, currentUser]);
+    } catch (e) {}
+  }, [route.params?.createdAddress, mapInstance, currentUser, navigation]);
 
   const topOffset = Platform.OS === 'android' ? (StatusBar.currentHeight || 8) : 12;
 
@@ -175,17 +200,28 @@ export default function MapScreen() {
     </View>
   );
 
-  if (Platform.OS === 'web') {
-    if (loading || (!location && !leafletErr)) {
-      return (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator />
-          <Text style={{ marginTop: 8 }}>Chargement de la carte…</Text>
-        </View>
-      );
-    }
+  if (error) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+        <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10, color: 'red' }}>Erreur</Text>
+        <Text style={{ textAlign: 'center', marginBottom: 20 }}>{error}</Text>
+        <Text style={{ textAlign: 'center', color: '#666' }}>
+          Allez dans Paramètres → Apps → Mes Bonnes Adresses → Autorisations → Localisation
+        </Text>
+      </View>
+    );
+  }
 
-    const { MapContainer, TileLayer, RLMarker, Popup, icons } = RL || {};
+  if (loading || !location || (Platform.OS === 'web' && !webMapReady)) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator size="large" />
+        <Text style={{ marginTop: 8 }}>Chargement de la carte…</Text>
+      </View>
+    );
+  }
+
+  if (Platform.OS === 'web') {
     const center = location || { latitude: 48.8566, longitude: 2.3522 };
 
     return (
@@ -199,69 +235,52 @@ export default function MapScreen() {
           </View>
         </View>
 
-        {leafletErr ? (
-          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-            <Text>Carte web indisponible: {leafletErr}</Text>
-          </View>
-        ) : leafletReady && RL ? (
-          <MapContainer
-            center={[center.latitude, center.longitude]}
-            zoom={14}
-            style={{ flex: 1, height: '100%' }}
-            scrollWheelZoom
-            whenCreated={(m) => setMapInstance(m)}
-          >
-            <TileLayer
-              attribution='&copy; OpenStreetMap contributors'
-              url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-            />
+        <MapContainer
+          center={[center.latitude, center.longitude]}
+          zoom={14}
+          style={{ flex: 1, height: '100%' }}
+          scrollWheelZoom
+          whenCreated={(m) => setMapInstance(m)}
+        >
+          <TileLayer
+            attribution='&copy; OpenStreetMap contributors'
+            url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+          />
 
-            {location && (
-              <RLMarker
-                position={[location.latitude, location.longitude]}
-                icon={icons.red}
-              >
-                <Popup>Vous</Popup>
-              </RLMarker>
-            )}
+          {location && (
+            <RLMarker
+              position={[location.latitude, location.longitude]}
+              icon={icons.red}
+            >
+              <Popup>Vous</Popup>
+            </RLMarker>
+          )}
 
-            {myAddresses.map((a) => (
-              <RLMarker
-                key={`mine-${a._id}`}
-                position={[a.location.latitude, a.location.longitude]}
-                icon={icons.green}
-              >
-                <Popup>{a.title || 'Mon adresse'}</Popup>
-              </RLMarker>
-            ))}
+          {myAddresses.map((a) => (
+            <RLMarker
+              key={`mine-${a._id}`}
+              position={[a.location.latitude, a.location.longitude]}
+              icon={icons.green}
+            >
+              <Popup>{a.title || 'Mon adresse'}</Popup>
+            </RLMarker>
+          ))}
 
-            {othersPublic.map((a) => (
-              <RLMarker
-                key={`other-${a._id}`}
-                position={[a.location.latitude, a.location.longitude]}
-                icon={icons.blue}
-              >
-                <Popup>{a.title || 'Adresse publique'}</Popup>
-              </RLMarker>
-            ))}
-          </MapContainer>
-        ) : (
-          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <ActivityIndicator />
-          </View>
-        )}
+          {othersPublic.map((a) => (
+            <RLMarker
+              key={`other-${a._id}`}
+              position={[a.location.latitude, a.location.longitude]}
+              icon={icons.blue}
+            >
+              <Popup>{a.title || 'Adresse publique'}</Popup>
+            </RLMarker>
+          ))}
+        </MapContainer>
       </View>
     );
   }
 
-  if (loading || !location) {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator />
-        <Text style={{ marginTop: 8 }}>Chargement de la carte…</Text>
-      </View>
-    );
-  }
+  console.log('Affichage MapView Native avec location:', location);
 
   return (
     <View style={{ flex: 1 }}>

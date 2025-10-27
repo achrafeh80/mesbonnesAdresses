@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -7,8 +7,7 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
-import { getAuth } from 'firebase/auth';
-import { db } from '../utils/firebase';
+import { auth, db } from '../utils/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import publicAddressStyles from '../styles/adress/publicAddressStyles';
 
@@ -19,7 +18,7 @@ export default function PublicAddressesScreen({ navigation }) {
   const fetchPublicAddresses = async () => {
     setLoading(true);
     try {
-      const user = getAuth().currentUser;
+      const user = auth.currentUser;
       const q = query(collection(db, 'addresses'), where('isPublic', '==', true));
       const snap = await getDocs(q);
       let data = snap.docs.map((docSnap) => ({ _id: docSnap.id, ...docSnap.data() }));
@@ -48,7 +47,6 @@ export default function PublicAddressesScreen({ navigation }) {
         activeOpacity={0.85}
         onPress={() => navigation.navigate('AddressDetail', { addressId: item._id })}
       >
-        {/* Cover image */}
         {cover ? (
           <Image source={{ uri: cover }} style={publicAddressStyles.cover} />
         ) : (
@@ -57,7 +55,6 @@ export default function PublicAddressesScreen({ navigation }) {
           </View>
         )}
 
-        {/* Content */}
         <View style={publicAddressStyles.content}>
           <Text numberOfLines={1} style={publicAddressStyles.title}>
             {item.title || 'Sans titre'}
