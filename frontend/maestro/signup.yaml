@@ -1,0 +1,24 @@
+appId: com.achrafeh.mesbonnesadresses
+---
+
+- assertVisible: Créer un compte
+- tapOn: Créer un compte
+- assertVisible: Créer un compte
+- assertVisible: Bienvenue parmi nous ✨
+- tapOn: 'ex: Jean Dupont'
+- inputText: test
+- tapOn: 'ex: jean.dupont@email.com'
+- inputText: test.maestro@example.com
+- tapOn: ••••••••
+- inputText: TestPassword123
+- assertVisible: S'inscrire
+- tapOn: S'inscrire
+- assertVisible:
+    id: grant_dialog
+- tapOn: Lorsque vous utilisez l'appli
+- assertVisible: , Map
+- assertVisible: , My Addresses
+- assertVisible: , Public Addresses
+- assertVisible: , Profile
+- assertVisible: Mes adresses · 0
+- assertVisible: Publiques · 8

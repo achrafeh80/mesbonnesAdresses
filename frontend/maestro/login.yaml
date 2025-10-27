@@ -1,0 +1,16 @@
+appId: com.achrafeh.mesbonnesadresses
+---
+- assertVisible: Connexion
+- assertVisible: Heureux de te revoir 👋
+- tapOn: 'ex: jean.dupont@email.com'
+- inputText: zebi@test.com
+- tapOn: ••••••••
+- inputText: aaaaaa
+- tapOn: Voir
+- tapOn: Se connecter
+- assertVisible: , Map
+- assertVisible: , My Addresses
+- assertVisible: , Public Addresses
+- assertVisible: , Profile
+- assertVisible: Mes adresses · 0
+- assertVisible: Publiques · 8

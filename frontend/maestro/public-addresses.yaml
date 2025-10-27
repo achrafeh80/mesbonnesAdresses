@@ -1,0 +1,10 @@
+appId: com.achrafeh.mesbonnesadresses
+---
+
+- assertVisible: , Public Addresses
+- tapOn: , Public Addresses
+- assertVisible:
+    text: Public Addresses
+    index: 1
+
+- scroll
